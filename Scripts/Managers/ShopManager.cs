@@ -1,0 +1,105 @@
+using Unity.VisualScripting;
+using UnityEngine;
+using TMPro;
+
+public class ShopManager : Singleton<ShopManager>
+{
+    [SerializeField] private GameObject buyCardPrefab;
+    [SerializeField] private GameObject buyNodePrefab;
+    private Vector2[] itemPositions = { new Vector2(-23, 0), new Vector2(-20, 0), new Vector2(-17, 0) };
+    [SerializeField] private Transform inventoryObj;
+    [SerializeField] private Transform nodeInventoryObj;
+    [SerializeField] private TextMeshProUGUI goldText;
+    [SerializeField] private GameObject buyCanvas;
+    [SerializeField] private GameObject[] itemsOnDisplay = new GameObject[3];
+
+    new private void Awake()
+    {
+        base.Awake();
+    }
+
+    private void Start()
+    {
+        
+        UpdateGoldText();
+    }
+
+    override public void Populate()
+    {
+        buyCanvas.SetActive(true);
+        inventoryObj.transform.SetParent(transform);
+        nodeInventoryObj.transform.SetParent(transform);
+        SpellFactory spellFactory = new SpellFactory();
+        NodeFactory nodeFactory = new NodeFactory();
+        //Populate shop with items
+        for (int i = 0; i < 3; i++)
+        {
+            
+            if(itemsOnDisplay[i] == null)
+            {
+                if( Random.Range(0,2) == 1)
+                {
+                    itemsOnDisplay[i] = Instantiate(buyCardPrefab, itemPositions[i], Quaternion.identity);
+                    CustomizableSpell spell = spellFactory.GetRandomSpell();
+                    itemsOnDisplay[i].GetComponent<ShopItemComponent>().SetItem(new Item(spell.defaultName, 10, spell.ToString(), spell));
+                }
+                else
+                {
+                    itemsOnDisplay[i] = Instantiate(buyNodePrefab, itemPositions[i], Quaternion.identity);
+                    SpellNode node = nodeFactory.GetRandomNode();
+                    itemsOnDisplay[i].GetComponent<ShopNodeComponent>().SetNode(node);
+                }
+                    
+                
+            }
+            
+        }
+    }
+
+    public void RefreshShop()
+    {
+        Inventory inv = Inventory.GetInstance();
+        if (inv.GetGold() >= 5)
+        {
+            
+            for(int i = 0; i < 3; i++)
+            {
+                Destroy(itemsOnDisplay[i]);
+                itemsOnDisplay[i] = null;
+            }
+            inv.RemoveGold(5);
+            UpdateGoldText();
+            Populate();
+        }
+    }
+
+    public void BuyItem(ShopItemComponent itemComponent)
+    {   
+        Inventory inventory = Inventory.GetInstance();   
+        if (inventory.GetGold() >= itemComponent.GetItem().GetValue())
+        {
+            SoundManager.GetInstance().PlaySound("BuyItem");
+            inventory.AddItem(itemComponent.GetItem());
+            inventory.RemoveGold(itemComponent.GetItem().GetValue());
+            Destroy(itemComponent.gameObject);
+            UpdateGoldText();
+        }
+    }
+
+    public void BuyNode(ShopNodeComponent nodeComponent)
+    {
+        Inventory inventory = Inventory.GetInstance();
+        if (inventory.GetGold() >= nodeComponent.GetNode().value)
+        {
+            inventory.AddNode(nodeComponent.GetNode());
+            inventory.RemoveGold(nodeComponent.GetNode().value);
+            Destroy(nodeComponent.gameObject);
+            UpdateGoldText();
+        }
+    }
+
+    public void UpdateGoldText()
+    {
+        goldText.text = Inventory.GetInstance().GetGold().ToString() + " GP";
+    }
+}
