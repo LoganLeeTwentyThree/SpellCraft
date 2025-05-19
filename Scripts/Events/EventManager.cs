@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
 using TMPro;
+using System.Collections;
+using UnityEngine.UI;
+using UnityEngine.InputSystem.EnhancedTouch;
 
 public class EventManager : Singleton<EventManager>
 {
@@ -12,17 +15,19 @@ public class EventManager : Singleton<EventManager>
 
     [SerializeField] private GameObject stackPrefab;
     private Stack<GameObject> stackObjs = new();
-    Vector2 topPos = new Vector2(-370, -200);
+    private Vector2 topPos = new Vector2(-370, -200);
     [SerializeField]private GameObject canvas;
 
     private void Start()
     {
+        //clear stack if the battle ends for any reason
         GameManager.GetInstance().GameStateChanged.AddListener((state) =>
         {
             stack.Clear();
             foreach (GameObject obj in stackObjs)
             {
                 Destroy(obj);
+                topPos.y -= 50;
             }
         });
 
@@ -34,32 +39,62 @@ public class EventManager : Singleton<EventManager>
         });
     }
 
-    //Pushes a new action to the stack and instantiates a new UI element
+    //Pushes a new action to the stack
     public void Push(GameAction toPush)
     {
-        Debug.Log(toPush.GetActionType());
+        if(stack.Count >= 10)
+        {
+            //prevent infinite combos for now
+            return;
+        }
         stack.Push(toPush);
+        UpdateStackUI(toPush);
         Pushed.Invoke(toPush);
+        
 
-        GameObject obj = Instantiate(stackPrefab, topPos, Quaternion.identity);
-        obj.transform.SetParent(canvas.transform, false);
-        obj.GetComponentInChildren<TextMeshProUGUI>().text = toPush.GetActionType().ToString();
-        stackObjs.Push(obj);
-        topPos.y += 50;
     }
 
-    //Pops the top action from the stack and resolves it. Also removes the UI element
+    //Pops the top action from the stack and resolves it
     public void Pop()
     {
         GameAction action = stack.Pop();
         action.Resolve();
+        UpdateStackUI(action);
         Popped.Invoke(action);
         
 
 
-        Destroy(stackObjs.Pop());
-        topPos.y -= 50;
+    }
 
+    //Instantiates stack UI elements.
+    private void UpdateStackUI(GameAction action)
+    {
+        //if the stack doesn't contain the action, it was just popped, otherwise it was just pushed
+        if(!stack.Contains(action))
+        {
+            //pop logic
+            GameObject obj = stackObjs.Pop();
+            if(isActiveAndEnabled) StartCoroutine(DestroyStackObj(obj));
+            topPos.y -= 50;
+        }
+        else
+        {
+            //push logic
+            GameObject obj = Instantiate(stackPrefab, topPos, Quaternion.identity);
+            obj.transform.SetParent(canvas.transform, false);
+            obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource() != null ? action.GetSource() : action.GetActionType().ToString();
+            stackObjs.Push(obj);
+            topPos.y += 50;
+        }
+            
+        
+    }
+
+    private IEnumerator DestroyStackObj(GameObject obj)
+    {
+        obj.GetComponent<Image>().color = Color.yellow;
+        yield return new WaitForSeconds(0.25f);
+        Destroy(obj);
     }
 
     public bool StackIsEmpty()

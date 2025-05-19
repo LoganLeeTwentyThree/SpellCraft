@@ -29,7 +29,7 @@ namespace NodeDelegates
     {
         public static TriggerNode.Listen attackTrigger = (SpellComponent sc, SpellNode n) =>
         {
-            EventManager.GetInstance().Pushed.AddListener((GameAction action) =>
+            EventManager.GetInstance().Popped.AddListener((GameAction action) =>
             {
                 if (action.GetActionType() == GameAction.ActionType.ATTACK)
                 {
@@ -40,7 +40,7 @@ namespace NodeDelegates
 
         public static TriggerNode.Listen healTrigger = (SpellComponent sc, SpellNode n) =>
         {
-            EventManager.GetInstance().Pushed.AddListener((GameAction action) =>
+            EventManager.GetInstance().Popped.AddListener((GameAction action) =>
             {
                 if (action.GetActionType() == GameAction.ActionType.HEAL)
                 {
@@ -51,7 +51,7 @@ namespace NodeDelegates
 
         public static TriggerNode.Listen dieTrigger = (SpellComponent sc, SpellNode n) =>
         {
-            EventManager.GetInstance().Pushed.AddListener((GameAction action) =>
+            EventManager.GetInstance().Popped.AddListener((GameAction action) =>
             {
                 if (action.GetActionType() == GameAction.ActionType.DIE)
                 {

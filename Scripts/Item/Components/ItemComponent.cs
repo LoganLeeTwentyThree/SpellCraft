@@ -21,20 +21,20 @@ public class ItemComponent : MonoBehaviour
     private void PopulateText()
     {
         
-        
+        Inventory inv = Inventory.GetInstance();
         if (goldText != null)
         {
-            goldText.text = Inventory.GetInstance().GetItem(itemIndexInInventory).GetValue().ToString();
+            goldText.text = inv.GetItem(itemIndexInInventory).GetValue().ToString();
         }
 
         if (itemNameText != null)
         {
-            itemNameText.text = Inventory.GetInstance().GetItem(itemIndexInInventory).GetItemName();
+            itemNameText.text = inv.GetItem(itemIndexInInventory).GetItemName();
         }
 
         if(itemDescriptionText != null)
         {
-            itemDescriptionText.text = Inventory.GetInstance().GetItem(itemIndexInInventory).GetDescription();
+            itemDescriptionText.text = inv.GetItem(itemIndexInInventory).GetDescription();
         }
 
     }
@@ -69,9 +69,17 @@ public class ItemComponent : MonoBehaviour
 
     public void SetItem(Item item)
     {
-        Inventory.GetInstance().GetItem(itemIndexInInventory).SetSpell(item.GetSpell());
-        Inventory.GetInstance().GetItem(itemIndexInInventory).SetDescription(item.GetDescription());
-        Inventory.GetInstance().GetItem(itemIndexInInventory).SetValue(item.GetValue());
+        
+        Inventory inv = Inventory.GetInstance();
+        if(inv.GetIndexOfItem(item) != -1)
+        {
+            itemIndexInInventory = inv.GetIndexOfItem(item);
+        }
+        else
+        {
+            Debug.Log("IDK how this happened");
+        }
+
         PopulateText();
     }
     public void Use(Character target)

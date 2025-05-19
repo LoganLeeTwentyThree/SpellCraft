@@ -151,9 +151,23 @@ public class CraftCard : MonoBehaviour
         DecreaseNodeSpots();
     }
 
+    public bool IsValid()
+    {
+        if (nodeArr[last - 1].GetType() != typeof(ActionNode)) return false;
+        return true;
+    }
+
     public void Save()
     {
-        if (nodeArr[last-1].GetType() != typeof(ActionNode))
+        if(last == 0)
+        {
+            Debug.Log("No nodes in spell");
+            Inventory.GetInstance().RemoveItem(itemIndexInInventory);
+            Destroy(gameObject);
+            return;
+        }
+
+        if (!IsValid())
         {
             Debug.Log("Spell is not complete");
             return;

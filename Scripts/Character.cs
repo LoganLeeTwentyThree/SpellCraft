@@ -60,6 +60,11 @@ public abstract class Character : MonoBehaviour
     public void SetHealth(int n_health)
     {
         health = n_health;
+        if (health > maxHealth)
+        {
+            maxHealth = health;
+        }
+
         healthBar.value = health;
         healthText.text = health.ToString() + "/" + maxHealth.ToString();
     }
@@ -71,6 +76,7 @@ public abstract class Character : MonoBehaviour
     {
         return maxHealth;
     }
+
     public abstract void Attack();
     public abstract void Die();
 }

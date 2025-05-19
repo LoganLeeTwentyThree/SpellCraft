@@ -5,7 +5,7 @@ public abstract class GameAction
 {
     public enum ActionType { DRAW, DAMAGE, DIE, ATTACK, HEAL, ALTER, TURN };
     protected ActionType type;
-    protected Character source;
+    protected string source;
 
     public GameAction(ActionType n_type)
     {
@@ -17,12 +17,12 @@ public abstract class GameAction
         return type;
     }
 
-    public void SetSource(Character n_source)
+    public void SetSource(string n_source)
     {
         source = n_source;
     }
 
-    public Character GetSource()
+    public string GetSource()
     {
         return source;
     }

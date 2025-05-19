@@ -138,6 +138,29 @@ public class Inventory : Singleton<Inventory>
         return items[index];
     }
 
+    public void SetItem(int index, Item item)
+    {
+        if (index < 0 || index >= items.Length)
+        {
+            Debug.LogError("Index out of bounds");
+            return;
+        }
+        items[index] = item;
+    }
+
+    public int GetIndexOfItem(Item item)
+    {
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == item)
+            {
+                
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public SpellNode GetSpellNode(int index)
     {
         if (index < 0 || index >= spellNodes.Length)

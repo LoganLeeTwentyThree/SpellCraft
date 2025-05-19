@@ -30,8 +30,9 @@ public class ActionNode : SpellNode
         this.action = action;
     }
 
-    public void Execute()
+    public void Execute(string source)
     {
+        action.SetSource(source);
         EventManager.GetInstance().Push(action);
     }
 }

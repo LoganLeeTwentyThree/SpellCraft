@@ -48,8 +48,12 @@ public class InventoryItemComponent : MonoBehaviour
         }
         else
         {
-            Destroy(craftingItem);
-            crafting = false;
+            if(craftingItem != null && craftingItem.GetComponent<CraftCard>().IsValid())
+            {
+                Destroy(craftingItem);
+                crafting = false;
+            }
+            
         }
 
 

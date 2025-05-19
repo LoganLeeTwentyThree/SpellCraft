@@ -38,7 +38,7 @@ public class SpellComponent : MonoBehaviour
             if (spell.array[i] == node)
             {
                 ActionNode an = (ActionNode)spell.array[i + 1];
-                an.Execute();
+                an.Execute(spell.defaultName);
                 break;
             }
         }

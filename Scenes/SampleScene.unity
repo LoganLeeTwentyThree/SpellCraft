@@ -345,7 +345,6 @@ MonoBehaviour:
   - {fileID: 1947195151}
   - {fileID: 905610246}
   - {fileID: 994706891}
-  fights: 4
   GameStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3959,7 +3958,7 @@ MonoBehaviour:
   nodeContentParent: {fileID: 460492661}
   inventoryItemPrefab: {fileID: 586184622032279211, guid: c98166ea2cf7e1b46bbf24112af08b3e, type: 3}
   inventoryNodePrefab: {fileID: 586184622032279211, guid: 0e77b9d05a36a784aa2b3f6da028abfc, type: 3}
-  gold: 20
+  gold: 100
   maxInventorySize: 20
   deck: {fileID: 52001793}
 --- !u!4 &1439735662
