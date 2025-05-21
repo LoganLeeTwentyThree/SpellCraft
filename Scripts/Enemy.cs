@@ -50,6 +50,7 @@ public class Enemy : Character
             SoundManager.GetInstance().PlaySound("EnemyDie");
             Inventory.GetInstance().AddGold(goldValue);
             BattleManager.GetInstance().NotifyDead(this);
+            Destroy(gameObject);
         }));
     }
 }

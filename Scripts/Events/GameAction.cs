@@ -24,7 +24,7 @@ public abstract class GameAction
 
     public string GetSource()
     {
-        return source;
+        return source != null ? source : GetActionType().ToString();
     }
     public abstract void Resolve();
 }

@@ -61,35 +61,6 @@ public class BattleManager : Singleton<BattleManager>
         
 
     }
-    private void Update()
-    {
-        
-        if (CurrentTurn == Turn.PLAYER)
-        {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                if (EventManager.GetInstance().StackIsEmpty())
-                {
-                    if(CurrentPhase == Phase.ATTACK)
-                    {
-                        if (PlayerCharacter.hasAttacked == true)
-                        {
-                            ChangePhase();
-                        }
-                    }
-                    else
-                    {
-                        ChangePhase();
-                    }
-                    
-                }
-                    
-            }
-        }
-        
-        
-        
-    }
     private void ChangeTurn()
     {
         if( CurrentTurn == Turn.ENEMY )
@@ -202,8 +173,6 @@ public class BattleManager : Singleton<BattleManager>
     {
         if (character is Enemy)
         {
-            Destroy(enemy.gameObject);
-            enemy = null;
             EndFight();
         }
         else
@@ -230,7 +199,7 @@ public class BattleManager : Singleton<BattleManager>
         GameManager gm = GameManager.GetInstance();
         int currentFight = gm.GetCurrentFight();
         enemy.SetHealth(5 * currentFight);
-        enemy.damage = 1 * currentFight;
+        enemy.SetDamage(1 * currentFight);
         fightText.text = currentFight + "/4 fight in this run";
 
         CurrentPhase = Phase.START;

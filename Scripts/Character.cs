@@ -14,7 +14,7 @@ public abstract class Character : MonoBehaviour
     [SerializeField]
     protected TMPro.TextMeshProUGUI healthText;
 
-    public int damage = 1;
+    protected int damage = 1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Start()
     {
@@ -56,6 +56,24 @@ public abstract class Character : MonoBehaviour
             EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, () => BattleManager.GetInstance().NotifyDead(this)));
         }
     }
+
+    public void ChangeDamage(int difference)
+    {
+        damage += difference;
+        GameObject alterParticles = Resources.Load<GameObject>("AlterEffect");
+        StartCoroutine(showParticles(alterParticles));
+        transform.DOShakePosition(0.5f, difference, 1, 90, false, true);
+        if (damage < 0)
+        {
+            damage = 0;
+        }
+    }
+
+    public void SetDamage(int n_damage)
+    {
+        damage = n_damage;
+    }
+
     //used when instantiated
     public void SetHealth(int n_health)
     {

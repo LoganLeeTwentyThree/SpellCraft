@@ -28,7 +28,7 @@ public class NodeFactory
         
 
         //This node reduces a character's damage by 1
-        toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.ALTER, Targeting.enemyTarget, (Character r) => r.damage -= 1), "reduce your enemy's power by 1.", 5);
+        toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.ALTER, Targeting.enemyTarget, (Character r) => r.ChangeDamage(1)), "reduce your enemy's power by 1.", 5);
         nodes.Add(toAdd);
 
         //This node triggers at the end of the turn

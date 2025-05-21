@@ -5,6 +5,7 @@ using TMPro;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem.EnhancedTouch;
+using static BattleManager;
 
 public class EventManager : Singleton<EventManager>
 {
@@ -50,7 +51,7 @@ public class EventManager : Singleton<EventManager>
         stack.Push(toPush);
         UpdateStackUI(toPush);
         Pushed.Invoke(toPush);
-        
+
 
     }
 
@@ -80,9 +81,11 @@ public class EventManager : Singleton<EventManager>
         else
         {
             //push logic
+            
             GameObject obj = Instantiate(stackPrefab, topPos, Quaternion.identity);
+            if(action.GetActionType() == GameAction.ActionType.DIE) Debug.Log(obj);
             obj.transform.SetParent(canvas.transform, false);
-            obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource() != null ? action.GetSource() : action.GetActionType().ToString();
+            obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource();
             stackObjs.Push(obj);
             topPos.y += 50;
         }
@@ -99,16 +102,33 @@ public class EventManager : Singleton<EventManager>
 
     public bool StackIsEmpty()
     {
-        if (stack.Count == 0) return true;
-        return false;
-
+        return stack.Count == 0;
     }
 
     public void Update()
     {
+        //stack resolution and phase procession logic
         if(Input.GetKeyDown(KeyCode.Space) && !StackIsEmpty())
         {
             Pop();
+        }else if(Input.GetKeyDown(KeyCode.Space) && StackIsEmpty())
+        {
+            BattleManager bm = BattleManager.GetInstance();
+            if (bm.GetTurn() == Turn.PLAYER)
+            {
+                if (bm.GetPhase() == Phase.ATTACK)
+                {
+                    if (PlayerCharacter.hasAttacked == true)
+                    {
+                        bm.ChangePhase();
+                    }
+                }
+                else
+                {
+                    bm.ChangePhase();
+                }
+            }
+            
         }
     }
 

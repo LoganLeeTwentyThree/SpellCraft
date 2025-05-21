@@ -12,6 +12,7 @@ public class CraftCard : MonoBehaviour
     [SerializeField] private List<int> spellNodeIndexes = new();
     [SerializeField] private List<GameObject> nodeSpots = new();
     [SerializeField] private int last = 0;
+    private InventoryItemComponent invComponent;
 
     private void Start()
     {
@@ -23,6 +24,11 @@ public class CraftCard : MonoBehaviour
     public SpellNode GetLast()
     {
         return nodeArr[last - 1];
+    }
+
+    public void SetInvComponent(InventoryItemComponent invComponent)
+    {
+        this.invComponent = invComponent;
     }
 
     public void CreateNodes()
@@ -192,7 +198,8 @@ public class CraftCard : MonoBehaviour
 
         SoundManager.GetInstance().PlaySound("CraftItem");
         Inventory.GetInstance().GetItem(itemIndexInInventory).SetSpell(craftingSpell);
-        Destroy(gameObject);
+        invComponent.MoveToItemSlot();
+        
         return;
     }
 
