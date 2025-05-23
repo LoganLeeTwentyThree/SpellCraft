@@ -165,7 +165,8 @@ public class CraftCard : MonoBehaviour
 
     public void Save()
     {
-        if(last == 0)
+        //if theres no nodes in the spell, fail to save
+        if (last == 0)
         {
             Debug.Log("No nodes in spell");
             Inventory.GetInstance().RemoveItem(itemIndexInInventory);
@@ -173,13 +174,18 @@ public class CraftCard : MonoBehaviour
             return;
         }
 
+        //if the spell is not valid, fail to save
         if (!IsValid())
         {
             Debug.Log("Spell is not complete");
             return;
         }
 
-        craftingSpell = new CustomizableSpell(name);
+        //from here, assume spell is saveable
+
+        //create crafting spell to put in inventory
+        string title = GetComponentInChildren<TMP_InputField>().text;
+        craftingSpell = new CustomizableSpell(title);
         foreach(SpellNode sn in nodeArr)
         {
             if(sn != null)

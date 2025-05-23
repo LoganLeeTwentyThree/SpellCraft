@@ -70,24 +70,23 @@ public class EventManager : Singleton<EventManager>
     //Instantiates stack UI elements.
     private void UpdateStackUI(GameAction action)
     {
-        //if the stack doesn't contain the action, it was just popped, otherwise it was just pushed
-        if(!stack.Contains(action))
-        {
-            //pop logic
-            GameObject obj = stackObjs.Pop();
-            if(isActiveAndEnabled) StartCoroutine(DestroyStackObj(obj));
-            topPos.y -= 50;
-        }
-        else
+        //if the stack contains the action, it was just pushed, otherwise it was just popped
+        if(stack.Contains(action))
         {
             //push logic
-            
             GameObject obj = Instantiate(stackPrefab, topPos, Quaternion.identity);
-            if(action.GetActionType() == GameAction.ActionType.DIE) Debug.Log(obj);
             obj.transform.SetParent(canvas.transform, false);
             obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource();
             stackObjs.Push(obj);
             topPos.y += 50;
+            Debug.Log("Top of stack is now " + stack.Peek().GetType());
+        }
+        else
+        {
+            //pop logic
+            GameObject obj = stackObjs.Pop();
+            if (isActiveAndEnabled) StartCoroutine(DestroyStackObj(obj));
+            topPos.y -= 50;
         }
             
         

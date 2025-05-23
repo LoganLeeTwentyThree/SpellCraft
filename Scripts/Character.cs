@@ -53,7 +53,7 @@ public abstract class Character : MonoBehaviour
 
         if (health <= 0)
         {
-            EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, () => BattleManager.GetInstance().NotifyDead(this)));
+            Die();
         }
     }
 

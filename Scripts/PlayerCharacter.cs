@@ -35,7 +35,12 @@ public class PlayerCharacter : Character
 
     override public void Die()
     {
-        SoundManager.GetInstance().PlaySound("PlayerDie");
-        Destroy(gameObject);
+        EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, () =>
+        {
+            Destroy(gameObject);
+            SoundManager.GetInstance().PlaySound("PlayerDie");
+            BattleManager.GetInstance().NotifyDead(this);
+        }));
+        
     }
 }

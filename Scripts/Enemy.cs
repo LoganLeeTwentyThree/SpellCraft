@@ -46,7 +46,6 @@ public class Enemy : Character
     {
         if (goldValue == 0) goldValue = 10;
         EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, () => {
-            Debug.Log("Enemy died");
             SoundManager.GetInstance().PlaySound("EnemyDie");
             Inventory.GetInstance().AddGold(goldValue);
             BattleManager.GetInstance().NotifyDead(this);

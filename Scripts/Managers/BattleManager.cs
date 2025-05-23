@@ -181,7 +181,6 @@ public class BattleManager : Singleton<BattleManager>
             {
                 if (players[i] == character)
                 {
-                    players[i].Die();
                     players[i] = null;
                 }
             }
