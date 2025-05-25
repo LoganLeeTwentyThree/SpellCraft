@@ -46,9 +46,13 @@ public class CraftCard : MonoBehaviour
                     {
                         prefab = Resources.Load<GameObject>("TriggerNode");
                     }
-                    else
+                    else if(sn.GetType() == typeof(ActionNode))
                     {
                         prefab = Resources.Load<GameObject>("ActionNode");
+                    }
+                    else
+                    {
+                        prefab = Resources.Load<GameObject>("ConjunctionNode");
                     }
                     GameObject g = Instantiate(prefab, nodeSpots[last].transform.position, Quaternion.identity);
                     g.transform.parent = transform;
@@ -104,19 +108,43 @@ public class CraftCard : MonoBehaviour
             IncreaseNodeSpots();
             return true;
         }
-        else if(last == 0 && node.GetType() == typeof(ActionNode))
+        else if(last == 0 && node.GetType() != typeof(TriggerNode))
         {
             Debug.Log("Invalid Node");
             return false;
         }
-        else if ((node.GetType() == typeof(ActionNode) && nodeArr[last - 1].GetType() == typeof(TriggerNode)) ||
-            (node.GetType() == typeof(TriggerNode) && nodeArr[last - 1].GetType() == typeof(ActionNode)))
+
+        //check if the node is valid to add
+        bool valid = false;
+        if(node.GetType() == typeof(TriggerNode))
+        {
+            if(nodeArr[last - 1].GetType() != typeof(TriggerNode))
+            {
+                valid = true;
+            }
+        }else if(node.GetType() == typeof(ActionNode))
+        {
+            if ((nodeArr[last - 1].GetType() == typeof(TriggerNode)) || (nodeArr[last - 1].GetType() == typeof(ConjunctionNode)))
+            {
+                valid = true;
+            }
+        }
+        else if (node.GetType() == typeof(ConjunctionNode))
+        {
+            if (nodeArr[last - 1].GetType() == typeof(TriggerNode))
+            {
+                valid = true;
+            }
+        }
+
+        if (valid)
         {
             nodeArr[last] = Inventory.GetInstance().GetSpellNode(index);
             spellNodeIndexes.Add(index);
             IncreaseNodeSpots();
             return true;
         }
+
         return false;
             
     }
@@ -125,26 +153,51 @@ public class CraftCard : MonoBehaviour
     //returns true if the node was successfully added, false otherwise
     public bool AddNode(SpellNode node)
     {
-        if(last == 0 && node.GetType() == typeof(TriggerNode))
+        if (last == 0 && node.GetType() == typeof(TriggerNode))
         {
             nodeArr[last] = node;
             spellNodeIndexes.Add(-1);
             IncreaseNodeSpots();
             return true;
         }
-        else if (last == 0 && node.GetType() == typeof(ActionNode))
+        else if(last == 0 && node.GetType() != typeof(TriggerNode))
         {
             Debug.Log("Invalid Node");
             return false;
         }
-        else if ((node.GetType() == typeof(ActionNode) && nodeArr[last - 1].GetType() == typeof(TriggerNode)) ||
-            (node.GetType() == typeof(TriggerNode) && nodeArr[last - 1].GetType() == typeof(ActionNode)))
+
+        //check if the node is valid to add
+        bool valid = false;
+        if(node.GetType() == typeof(TriggerNode))
+        {
+            if(nodeArr[last - 1].GetType() != typeof(TriggerNode))
+            {
+                valid = true;
+            }
+        }else if(node.GetType() == typeof(ActionNode))
+        {
+            if ((nodeArr[last - 1].GetType() == typeof(TriggerNode)) || (nodeArr[last - 1].GetType() == typeof(ConjunctionNode)))
+            {
+                valid = true;
+            }
+        }
+        else if (node.GetType() == typeof(ConjunctionNode))
+        {
+            if (nodeArr[last - 1].GetType() == typeof(TriggerNode))
+            {
+                valid = true;
+            }
+        }
+
+        if (valid)
         {
             nodeArr[last] = node;
             spellNodeIndexes.Add(-1);
             IncreaseNodeSpots();
             return true;
         }
+
+        Debug.Log("Invalid Node");
         return false;
         
         
@@ -170,6 +223,7 @@ public class CraftCard : MonoBehaviour
         {
             Debug.Log("No nodes in spell");
             Inventory.GetInstance().RemoveItem(itemIndexInInventory);
+            CraftManager.GetInstance().currentlyCrafting = null;
             Destroy(gameObject);
             return;
         }

@@ -1,10 +1,10 @@
 using UnityEngine;
 
+//attached to a character when a spell is cast on them 
 public class SpellComponent : MonoBehaviour
 {
     [SerializeField] private CustomizableSpell spell;
     private TMPro.TextMeshProUGUI text;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         text = transform.Find("Canvas").transform.Find("ItemText").GetComponent<TMPro.TextMeshProUGUI>();
@@ -21,7 +21,14 @@ public class SpellComponent : MonoBehaviour
         {
             if (node is TriggerNode triggerNode)
             {
+                // calls the listener method on each trigger node so that they start listening
                 triggerNode.listener(this, node);
+            }
+
+            if (node is ConjunctionNode conNode)
+            {
+                //sets the spell component in each conjuction node
+                conNode.sc = this;
             }
         }
     }
@@ -37,9 +44,32 @@ public class SpellComponent : MonoBehaviour
         {
             if (spell.array[i] == node)
             {
-                ActionNode an = (ActionNode)spell.array[i + 1];
-                an.Execute(spell.defaultName);
-                break;
+
+                if(spell.array[i + 1].GetType() == typeof(ActionNode))
+                {
+                    
+                    ActionNode an = (ActionNode)spell.array[i + 1];
+                    if (node is ConjunctionNode)
+                    {
+                        an.Execute(spell.defaultName, ((ConjunctionNode)node).multiplier);
+                    }
+                    else
+                    {
+                        an.Execute(spell.defaultName);
+                    }
+                        
+                    break;
+                }else if(spell.array[i + 1].GetType() == typeof(ConjunctionNode))
+                {
+                    ConjunctionNode cn = (ConjunctionNode)spell.array[i + 1];
+                    cn.Execute(spell.defaultName);
+                    break;
+                }
+                else
+                {
+                    Debug.LogError("Expected an action or conjunction node and didnt find one");
+                }
+
             }
         }
     }

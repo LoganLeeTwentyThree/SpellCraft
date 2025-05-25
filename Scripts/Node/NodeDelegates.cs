@@ -23,6 +23,12 @@ namespace NodeDelegates
 
             return damagedCharacters.Count != 0 ? damagedCharacters[Random.Range(0, damagedCharacters.Count - 1)] : null;
         };
+
+        public static TargetedAction.FindTarget allyTarget = () =>
+        {
+            PlayerCharacter[] characters = BattleManager.GetInstance().GetPlayers();
+            return characters[Random.Range(0, characters.Length - 1)];
+        };
     }
 
     public static class Triggers

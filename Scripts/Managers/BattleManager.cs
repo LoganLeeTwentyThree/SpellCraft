@@ -169,6 +169,17 @@ public class BattleManager : Singleton<BattleManager>
         return players;
     }
 
+    public PlayerCharacter GetRandomPlayer()
+    {
+        PlayerCharacter[] playerList = GetPlayers();
+        int randomIndex = Random.Range(0, playerList.Length);
+        while (playerList[randomIndex] == null)
+        {
+            randomIndex = Random.Range(0, playerList.Length);
+        }
+        return playerList[randomIndex];
+    }
+
     public void NotifyDead(Character character)
     {
         if (character is Enemy)

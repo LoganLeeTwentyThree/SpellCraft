@@ -25,11 +25,11 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         {
             if (node != null)
             {
-                nodeText.text = node.text;
+                nodeText.text = node.getText(node);
                 attached = true;
             }else
             {
-                nodeText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).text;
+                nodeText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).getText(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory));
             }
         }
         parentCard = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
@@ -51,7 +51,7 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         this.node = node;
         if (nodeText != null)
         {
-            nodeText.text = node.text;
+            nodeText.text = node.getText(node);
         }
     }
 

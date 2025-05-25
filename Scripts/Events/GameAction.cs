@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class GameAction
@@ -7,9 +8,25 @@ public abstract class GameAction
     protected ActionType type;
     protected string source;
 
+    public delegate bool ApplyMultiplier(int multiplier, GameAction self);
+    public ApplyMultiplier applyMultiplier;
+
+    public Dictionary<string, object> parameters;// a list of paramaters that an action has access to if it needs to track local state
+
+    public GameAction(ActionType n_type, ApplyMultiplier applyMultiplier, Dictionary<string, object> pairs)
+    {
+        parameters = pairs;
+        type = n_type;
+        this.applyMultiplier = applyMultiplier;
+    }
+
     public GameAction(ActionType n_type)
     {
         type = n_type;
+        applyMultiplier = (int multiplier, GameAction self) =>
+        {
+            return false; //default multiplier logic does nothing
+        };
     }
 
     public ActionType GetActionType()
@@ -26,7 +43,9 @@ public abstract class GameAction
     {
         return source != null ? source : GetActionType().ToString();
     }
-    public abstract void Resolve();
+
+    
+    public abstract void Resolve(GameAction Self);
 }
 
 public class TargetedAction : GameAction
@@ -34,31 +53,43 @@ public class TargetedAction : GameAction
    
     public delegate Character FindTarget();
     public FindTarget findTarget;
-    public delegate void Effect(Character target);
+    public delegate void Effect(Character target, GameAction self);
     public Effect effect;
+    //constructor for targeted actions with no multiplier logic
     public TargetedAction(ActionType n_type, FindTarget findTarget, Effect effect) : base(n_type)
     {
         this.findTarget = findTarget;
         this.effect = effect;
     }
-    override public void Resolve()
+    public TargetedAction(ActionType n_type, FindTarget findTarget, Effect effect, ApplyMultiplier applyMultiplier, Dictionary<string, object> pairs) : base(n_type, applyMultiplier, pairs)
+    {
+        this.findTarget = findTarget;
+        this.effect = effect;
+    }
+    override public void Resolve(GameAction self)
     {
         Character target = findTarget();
         if (target == null) return;
-        effect(target);
+        effect(target,self);
     }
 }
 
 public class UntargetedAction : GameAction
 {
-    public delegate void Effect();
+    public delegate void Effect(GameAction Self);
     public Effect effect;
+    //constructor for untargeted actions with no multiplier logic
     public UntargetedAction(ActionType n_type, Effect effect) : base(n_type)
     {
         this.effect = effect;
     }
-    override public void Resolve()
+    public UntargetedAction(ActionType n_type, Effect effect, ApplyMultiplier applyMultiplier, Dictionary<string, object> pairs) : base(n_type, applyMultiplier, pairs)
     {
-        effect();
+        this.effect = effect;
+        
+    }
+    override public void Resolve(GameAction self)
+    {
+        effect(self);
     }
 }

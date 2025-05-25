@@ -59,7 +59,7 @@ public class EventManager : Singleton<EventManager>
     public void Pop()
     {
         GameAction action = stack.Pop();
-        action.Resolve();
+        action.Resolve(action);
         UpdateStackUI(action);
         Popped.Invoke(action);
         
@@ -79,7 +79,6 @@ public class EventManager : Singleton<EventManager>
             obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource();
             stackObjs.Push(obj);
             topPos.y += 50;
-            Debug.Log("Top of stack is now " + stack.Peek().GetType());
         }
         else
         {

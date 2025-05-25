@@ -250,7 +250,7 @@ GameObject:
   - component: {fileID: 8680722042310780093}
   - component: {fileID: 1157004314264391925}
   - component: {fileID: 587094942412950798}
-  - component: {fileID: 4076151000541389167}
+  - component: {fileID: 1988762712945469725}
   m_Layer: 0
   m_Name: TriggerNode
   m_TagString: Untagged
@@ -491,7 +491,7 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &4076151000541389167
+--- !u!114 &1988762712945469725
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -500,11 +500,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 5307154573429378632}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43e5bff729a26a84d816f061ec2e1a6e, type: 3}
+  m_Script: {fileID: 11500000, guid: 853e947d8aa574a4181c965e3da46570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   nodeIndexInInventory: -1
   nodeText: {fileID: 5416508174708254865}
   parentCard: {fileID: 0}
-  triggerActionType: 0
-  text: Whenever you draw a card,

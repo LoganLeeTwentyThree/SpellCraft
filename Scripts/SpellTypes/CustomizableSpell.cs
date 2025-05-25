@@ -23,7 +23,7 @@ public class CustomizableSpell
         foreach(SpellNode node in array)
         {
             if (node != null)
-                text += node.text;
+                text += node.getText(node);
         }
         return text;
     }

@@ -33,15 +33,23 @@ public class InventoryNodeComponent : MonoBehaviour
         }else if (Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).GetType() == typeof(TriggerNode))
         {
             nodePrefab = Resources.Load<GameObject>("TriggerNode");
+        }else if (Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).GetType() == typeof(ConjunctionNode))
+        {
+            nodePrefab = Resources.Load<GameObject>("ConjunctionNode");
         }
-        
-        nameText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).text;
+
+            nameText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).getText(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory));
         
         
     }
 
     public void OnClick()
     {
+        if(CraftManager.GetInstance().currentlyCrafting == null)
+        {
+            return;
+        }
+
         if (!instantiated)
         {
             instance = Instantiate(nodePrefab, new Vector2(-40, 3), Quaternion.identity);

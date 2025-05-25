@@ -24,7 +24,7 @@ public class PlayerCharacter : Character
         {
             hasAttacked = true;
             
-            TargetedAction newDamageEvent = new TargetedAction(GameAction.ActionType.ATTACK, () => { return BattleManager.GetInstance().GetEnemy(); }, (Character c) => { 
+            TargetedAction newDamageEvent = new TargetedAction(GameAction.ActionType.ATTACK, () => { return BattleManager.GetInstance().GetEnemy(); }, (Character c, GameAction self) => { 
                 c.ChangeHealth(-damage); 
                 SoundManager.GetInstance().PlaySound("Attack"); 
             });
@@ -35,7 +35,7 @@ public class PlayerCharacter : Character
 
     override public void Die()
     {
-        EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, () =>
+        EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, (GameAction self) =>
         {
             Destroy(gameObject);
             SoundManager.GetInstance().PlaySound("PlayerDie");

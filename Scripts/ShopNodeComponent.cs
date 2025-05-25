@@ -18,7 +18,7 @@ public class ShopNodeComponent : MonoBehaviour
     {
        
         goldText.text = node.value.ToString();
-        nodeText.text = node.text;
+        nodeText.text = node.getText(node);
 
     }
     public SpellNode GetNode()
@@ -33,11 +33,15 @@ public class ShopNodeComponent : MonoBehaviour
             GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("ActionNodeSprite");
             transform.Find("Canvas").transform.Find("NodeText").transform.Translate(Vector2.right * 0.15f);
         }
-        else
+        else if(node.GetType() == typeof(TriggerNode))
         {
             GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("TriggerNodeSprite");
         }
-            this.node = node;
+        else
+        {
+            GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("ConjunctionNodeSprite");
+        }
+        this.node = node;
         PopulateText();
     }
 

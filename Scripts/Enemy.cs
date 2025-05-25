@@ -39,13 +39,13 @@ public class Enemy : Character
     public override void Attack()
     {
         SoundManager.GetInstance().PlaySound("Attack");
-        BattleManager.GetInstance().GetPlayers()[Random.Range(0, BattleManager.GetInstance().GetPlayers().Length - 1)].GetComponent<PlayerCharacter>().ChangeHealth(-damage);
+        BattleManager.GetInstance().GetRandomPlayer().GetComponent<PlayerCharacter>().ChangeHealth(-damage);
     }
 
     override public void Die()
     {
         if (goldValue == 0) goldValue = 10;
-        EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, () => {
+        EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, (GameAction self) => {
             SoundManager.GetInstance().PlaySound("EnemyDie");
             Inventory.GetInstance().AddGold(goldValue);
             BattleManager.GetInstance().NotifyDead(this);
