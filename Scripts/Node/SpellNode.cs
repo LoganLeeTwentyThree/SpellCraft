@@ -37,13 +37,6 @@ public class ActionNode : SpellNode
         action.SetSource(source);
         EventManager.GetInstance().Push(action);
     }
-
-    public void Execute(string source, int multiplier)
-    {
-        action.SetSource(source);
-        action.applyMultiplier(multiplier, action);
-        EventManager.GetInstance().Push(action);
-    }
 }
 
 //node that triggers when something happens - "Whenever you attack..."

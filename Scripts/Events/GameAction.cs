@@ -8,7 +8,7 @@ public abstract class GameAction
     protected ActionType type;
     protected string source;
 
-    public delegate bool ApplyMultiplier(int multiplier, GameAction self);
+    public delegate int ApplyMultiplier(int multiplier, GameAction self);
     public ApplyMultiplier applyMultiplier;
 
     public Dictionary<string, object> parameters;// a list of paramaters that an action has access to if it needs to track local state
@@ -25,7 +25,7 @@ public abstract class GameAction
         type = n_type;
         applyMultiplier = (int multiplier, GameAction self) =>
         {
-            return false; //default multiplier logic does nothing
+            return -1; //default multiplier logic does nothing
         };
     }
 

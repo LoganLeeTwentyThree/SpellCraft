@@ -45,31 +45,42 @@ public class NodeFactory
             {
                 object modified;
                 self.parameters.TryGetValue("modified", out modified);
-                if (modified != null && (bool)modified)
-                {
-                    //only apply modifier once
-                    return false;
-                }
-                else
-                {
-                    self.parameters.Remove("modified");
-                    self.parameters.Add("modified", true);
-                }
                 object currentGold;
                 self.parameters.TryGetValue("gold", out currentGold);
-                if (currentGold == null)
-                {
-                    self.parameters.Add("gold", 1);
 
-                }
-                else if (currentGold.GetType() != typeof(int))
+                if(modified == null || !(modified is bool) || currentGold == null || !(currentGold is int))
                 {
-                    Debug.LogError("Gold parameter must be an integer.");
-                    return false;
+                    Debug.LogError("Gold parameter must be an integer and modified must be a boolean.");
+                    return -1;
                 }
-                self.parameters.Remove("gold");
-                self.parameters.Add("gold", (int)currentGold * mult);
-                return true;
+
+                if (!(bool)modified)
+                {
+                    //toggle modifier
+                    self.parameters.Remove("modified");
+                    self.parameters.Add("modified", true);
+                    
+                    if (currentGold == null)
+                    {
+                        self.parameters.Add("gold", 1);
+                    }
+                    else if (currentGold.GetType() != typeof(int))
+                    {
+                        Debug.LogError("Gold parameter must be an integer.");
+                        return -1;
+                    }
+
+                    self.parameters.Remove("gold");
+                    self.parameters.Add("gold", (int)currentGold * mult);
+                }else
+                {
+                    self.parameters.Remove("modified");
+                    self.parameters.Add("modified", false);
+                    self.parameters.Remove("gold");
+                    self.parameters.Add("gold", 1);
+                }
+
+                    return (int)currentGold;
             },
             new Dictionary<string, object> { { "gold", 1 }, {"modified", false } } // parameters
             ), (SpellNode self) => 
@@ -78,8 +89,8 @@ public class NodeFactory
                 ((ActionNode)self).action.parameters.TryGetValue("gold", out gold);
                 return "gain " + gold + " gold.";
             }, 7);
-        
         nodes.Add(toAdd);
+        //end of gold node
 
         //This node reduces a character's damage by 1
         toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.ALTER, Targeting.enemyTarget, (Character r, GameAction self) => r.ChangeDamage(1)), (SpellNode self) =>"reduce your enemy's power by 1.", 5);

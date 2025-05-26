@@ -221,9 +221,9 @@ public class CraftCard : MonoBehaviour
         //if theres no nodes in the spell, fail to save
         if (last == 0)
         {
-            Debug.Log("No nodes in spell");
             Inventory.GetInstance().RemoveItem(itemIndexInInventory);
             CraftManager.GetInstance().currentlyCrafting = null;
+            InventoryItemComponent.crafting = false;
             Destroy(gameObject);
             return;
         }

@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -25,12 +26,9 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         {
             if (node != null)
             {
-                nodeText.text = node.getText(node);
                 attached = true;
-            }else
-            {
-                nodeText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).getText(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory));
             }
+            UpdateText();
         }
         parentCard = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
 
@@ -55,6 +53,18 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
         }
     }
 
+    public void UpdateText()
+    {
+        if (node != null)
+        {
+            nodeText.text = node.getText(node);
+        }
+        else
+        {
+            nodeText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).getText(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory));
+        }
+    }
+
     void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
     {
         if(!attached)
@@ -63,14 +73,29 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
             if (hit && hit.collider.CompareTag("NodeSpot"))
             {
                 bool success;
-                
-                if(nodeIndexInInventory == -1)
+                CraftCard cc = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
+                if (nodeIndexInInventory == -1)
                 {
-                    success = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>().AddNode(node);
+                    
+                    if(cc.GetLast().GetType() == typeof(ConjunctionNode) && node.GetType() == typeof(ActionNode))
+                    {
+                        Debug.Log("Conjunction Logic");
+                        ((ActionNode)node).action.applyMultiplier(((ConjunctionNode)cc.GetLast()).multiplier, ((ActionNode)node).action);
+                    }
+                    success = cc.AddNode(node);
                 }
                 else
                 {
-                    success = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>().AddNode(nodeIndexInInventory);
+                    
+                    SpellNode tNode = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory);
+                    if (cc.GetLast().GetType() == typeof(ConjunctionNode) && tNode.GetType() == typeof(ActionNode))
+                    {
+                        Debug.Log("Conjunction Logic");
+                        Inventory.GetInstance().RemoveNode(nodeIndexInInventory);
+                        ((ActionNode)tNode).action.applyMultiplier(((ConjunctionNode)cc.GetLast()).multiplier, ((ActionNode)tNode).action);
+                        nodeIndexInInventory = Inventory.GetInstance().AddNode(tNode);
+                    }
+                    success = cc.AddNode(nodeIndexInInventory);
                 }
 
                 if(success)
@@ -78,6 +103,7 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
                     transform.position = hit.collider.transform.position;
                     transform.parent = hit.transform.parent;
                     attached = true;
+                    UpdateText();
                 }
                 
             }
@@ -91,42 +117,44 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
 
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
-
         if (!attached)
         {
             line.enabled = true;
             RefreshLineVertices();
         }else
         {
-            
             if( node != null )
             {
-                
                 if (parentCard.GetLast().Equals(node))
                 {
+                    if(node.GetType() == typeof(ActionNode))
+                    {
+                        //unmodify if modified
+                        ((ActionNode)node).action.applyMultiplier(1, ((ActionNode)node).action);
+                    }
                     parentCard.RemoveNode(-1);
-                    Destroy(gameObject);
                     Inventory.GetInstance().AddNode(node);
-                }
-                
+                    Destroy(gameObject);
+                }   
             }
             else
             {
                 if(parentCard.GetLast().Equals(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory)))
                 {
+                    SpellNode tNode = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory);
+                    if (tNode.GetType() == typeof(ActionNode))
+                    {
+                        Inventory.GetInstance().RemoveNode(nodeIndexInInventory);
+                        //unmodify if modified
+                        ((ActionNode)tNode).action.applyMultiplier(1, ((ActionNode)tNode).action);
+                        Inventory.GetInstance().AddNode(tNode);
+                    }
                     parentCard.RemoveNode(nodeIndexInInventory);
                     Destroy(gameObject);
                 }
-            }
-
-
-            
-            
-            
+            }       
         }
-        
     }
-
     private void RefreshLineVertices()
     {
         lineVertices[0] = transform.position;

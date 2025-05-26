@@ -47,17 +47,8 @@ public class SpellComponent : MonoBehaviour
 
                 if(spell.array[i + 1].GetType() == typeof(ActionNode))
                 {
-                    
                     ActionNode an = (ActionNode)spell.array[i + 1];
-                    if (node is ConjunctionNode)
-                    {
-                        an.Execute(spell.defaultName, ((ConjunctionNode)node).multiplier);
-                    }
-                    else
-                    {
-                        an.Execute(spell.defaultName);
-                    }
-                        
+                    an.Execute(spell.defaultName);
                     break;
                 }else if(spell.array[i + 1].GetType() == typeof(ConjunctionNode))
                 {

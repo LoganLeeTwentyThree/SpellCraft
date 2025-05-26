@@ -8,7 +8,7 @@ public class InventoryItemComponent : MonoBehaviour
     [SerializeField] private int itemIndexInInventory;
     [SerializeField] private GameObject craftPrefab;
     [SerializeField] private Button button;
-    private static bool crafting = false;
+    public static bool crafting = false;
     private static GameObject craftingItem;
 
 
