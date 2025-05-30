@@ -90,11 +90,71 @@ public class NodeFactory
                 return "gain " + gold + " gold.";
             }, 7);
         nodes.Add(toAdd);
-        //end of gold node
+        //end of node
 
         //This node reduces a character's damage by 1
-        toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.ALTER, Targeting.enemyTarget, (Character r, GameAction self) => r.ChangeDamage(1)), (SpellNode self) =>"reduce your enemy's power by 1.", 5);
+        toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.ALTER, Targeting.enemyTarget, 
+            (Character r, GameAction self) =>
+            {
+                object reduction;
+                self.parameters.TryGetValue("reduction", out reduction);
+                if (reduction == null || !(reduction is int))
+                {
+                    Debug.LogError("Reduction parameter must be an integer.");
+                    return;
+                }
+                r.ChangeDamage((int)reduction);
+            }, (int mult, GameAction self) => 
+            {
+                object modified;
+                self.parameters.TryGetValue("modified", out modified);
+                object reduction;
+                self.parameters.TryGetValue("reduction", out reduction);
+                if (modified == null || !(modified is bool) || reduction == null || !(reduction is int))
+                {
+                    Debug.LogError("Reduction parameter must be an integer and modified must be a boolean.");
+                    return -1;
+                }
+
+                if (!(bool)modified)
+                {
+                    //toggle modifier
+                    self.parameters.Remove("modified");
+                    self.parameters.Add("modified", true);
+
+                    if (reduction == null)
+                    {
+                        self.parameters.Add("reduction", 1);
+                    }
+                    else if (reduction.GetType() != typeof(int))
+                    {
+                        Debug.LogError("Reduction parameter must be an integer.");
+                        return -1;
+                    }
+                    self.parameters.Remove("reduction");
+                    self.parameters.Add("reduction", (int)reduction * mult);
+                }
+                else
+                {
+                    self.parameters.Remove("modified");
+                    self.parameters.Add("modified", false);
+                    self.parameters.Remove("reduction");
+                    self.parameters.Add("reduction", 1);
+                }
+                return (int)reduction * mult;
+            }, new Dictionary<string, object> { { "reduction", -1 }, { "modified", false } })// parameters
+            , (SpellNode self) => {
+                object reduction;
+                ((ActionNode)self).action.parameters.TryGetValue("reduction", out reduction);
+                if (reduction == null || !(reduction is int))
+                {
+                    Debug.LogError("Reduction parameter must be an integer.");
+                    return "reduce your enemy's power by 1.";
+                }
+                return "reduce your enemy's power by " + -1 * (int)reduction + ".";
+            }, 5);
         nodes.Add(toAdd);
+        //end of node
 
         //----CONJUNCTION NODES----
         toAdd = new ConjunctionNode(new TargetedAction(GameAction.ActionType.DAMAGE, Targeting.allyTarget, (Character r, GameAction self) => r.ChangeHealth(-1)), (SpellNode self) => "take 1 damage and", 5, 2);

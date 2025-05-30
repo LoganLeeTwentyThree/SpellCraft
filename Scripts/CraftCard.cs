@@ -78,8 +78,13 @@ public class CraftCard : MonoBehaviour
         nodeSpots[last].tag = "Untagged";
         nodeSpots[last].SetActive(false);
         last++;
-        nodeSpots[last].tag = "NodeSpot";
-        nodeSpots[last].SetActive(true);
+
+        if (nodeArr[last - 1] is not ActionNode)
+        {
+            nodeSpots[last].tag = "NodeSpot";
+            nodeSpots[last].SetActive(true);
+        }
+        
     }
 
     private void DecreaseNodeSpots()

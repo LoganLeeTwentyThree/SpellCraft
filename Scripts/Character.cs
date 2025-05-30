@@ -32,7 +32,7 @@ public abstract class Character : MonoBehaviour
 
     public void ChangeHealth(int difference)
     {
-        //show hurt or heal particles based on difference
+        //show particles based on difference
         if (difference < 0)
         {
             transform.DOShakePosition(0.5f, difference, 10, 90, false, true);
@@ -44,8 +44,14 @@ public abstract class Character : MonoBehaviour
             GameObject healParticles = Resources.Load<GameObject>("HealEffect");
             StartCoroutine(showParticles(healParticles));
         }
+        else
+        {
+            GameObject healParticles = Resources.Load<GameObject>("NoDamageEffect");
+            StartCoroutine(showParticles(healParticles));
+            return; //no change in health
+        }
 
-        
+
         health += difference;
         healthBar.value = health;
         healthText.text = health.ToString() + "/" + maxHealth.ToString();
