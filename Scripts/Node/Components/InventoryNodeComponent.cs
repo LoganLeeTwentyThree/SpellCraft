@@ -21,52 +21,59 @@ public class InventoryNodeComponent : MonoBehaviour
     public void SetNode(int index)
     {
         nodeIndexInInventory = index;
-
-        if(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory) == null)
+        Inventory inv = Inventory.GetInstance();
+        if (inv.GetSpellNode(nodeIndexInInventory) == null)
         {
             return;
         }
 
-        if ( Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).GetType() == typeof(ActionNode))
+        if ( inv.GetSpellNode(nodeIndexInInventory).GetType() == typeof(ActionNode))
         {
             nodePrefab = Resources.Load<GameObject>("ActionNode");
-        }else if (Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).GetType() == typeof(TriggerNode))
+        }else if (inv.GetSpellNode(nodeIndexInInventory).GetType() == typeof(TriggerNode))
         {
             nodePrefab = Resources.Load<GameObject>("TriggerNode");
-        }else if (Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).GetType() == typeof(ConjunctionNode))
+        }else if (inv.GetSpellNode(nodeIndexInInventory).GetType() == typeof(ConjunctionNode))
         {
             nodePrefab = Resources.Load<GameObject>("ConjunctionNode");
         }
 
-            nameText.text = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory).getText(Inventory.GetInstance().GetSpellNode(nodeIndexInInventory));
+        nameText.text = inv.GetSpellNode(nodeIndexInInventory).getText(inv.GetSpellNode(nodeIndexInInventory));
         
         
     }
 
     public void OnClick()
     {
-        if(CraftManager.GetInstance().currentlyCrafting == null)
+        CraftManager cm = CraftManager.GetInstance();
+        if (cm.currentlyCrafting == null)
         {
             return;
         }
 
-        if (!instantiated)
+        if (!instantiated && !cm.isFloatingNode)
         {
             instance = Instantiate(nodePrefab, new Vector2(-40, 3), Quaternion.identity);
             instance.GetComponent<NodeComponent>().nodeIndexInInventory = nodeIndexInInventory;
             instantiated = true;
+            cm.isFloatingNode = true;
+
         }
         else
         {
-            
-            if(instance != null)
+            if (instance != null)
             {
                 if (instance.GetComponent<NodeComponent>().attached)
-                    CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>().RemoveNode(nodeIndexInInventory);
+                {
+                    cm.currentlyCrafting.GetComponent<CraftCard>().RemoveNode(nodeIndexInInventory);
+                }
 
                 Destroy(instance);
+                instantiated = false;
+                cm.isFloatingNode = false;
+
             }
-            instantiated = false;
+            
         }
     }
 }

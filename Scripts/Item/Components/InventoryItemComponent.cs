@@ -30,7 +30,12 @@ public class InventoryItemComponent : MonoBehaviour
     public void MoveToItemSlot()
     {
         //Used in crafting to create or remove a card in the item slot
-        if(!crafting)
+        if(GameManager.GetInstance().GetGameState() != GameManager.GameState.CRAFT)
+        {
+            return;
+        }
+
+        if (!crafting)
         {
             craftingItem = Instantiate(craftPrefab, new Vector2(-40, 0), Quaternion.identity);
             craftingItem.GetComponent<ItemComponent>().SetItem(itemIndexInInventory);

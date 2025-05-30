@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using TMPro;
 using Unity.VisualScripting;
@@ -75,22 +76,18 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
                 bool success;
                 CraftCard cc = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
                 if (nodeIndexInInventory == -1)
-                {
-                    
-                    if(cc.GetLast().GetType() == typeof(ConjunctionNode) && node.GetType() == typeof(ActionNode))
+                {   
+                    if(cc.GetLast() is ConjunctionNode && node is ActionNode)
                     {
-                        Debug.Log("Conjunction Logic");
                         ((ActionNode)node).action.applyMultiplier(((ConjunctionNode)cc.GetLast()).multiplier, ((ActionNode)node).action);
                     }
                     success = cc.AddNode(node);
                 }
                 else
                 {
-                    
                     SpellNode tNode = Inventory.GetInstance().GetSpellNode(nodeIndexInInventory);
-                    if (cc.GetLast().GetType() == typeof(ConjunctionNode) && tNode.GetType() == typeof(ActionNode))
+                    if (cc.GetLast() is ConjunctionNode && tNode is ActionNode)
                     {
-                        Debug.Log("Conjunction Logic");
                         Inventory.GetInstance().RemoveNode(nodeIndexInInventory);
                         ((ActionNode)tNode).action.applyMultiplier(((ConjunctionNode)cc.GetLast()).multiplier, ((ActionNode)tNode).action);
                         nodeIndexInInventory = Inventory.GetInstance().AddNode(tNode);
@@ -100,21 +97,18 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
 
                 if(success)
                 {
+                    SoundManager.GetInstance().PlaySound("Click");
                     transform.position = hit.collider.transform.position;
                     transform.parent = hit.transform.parent;
                     attached = true;
                     UpdateText();
-                }
-                
+                    transform.DOShakePosition(0.5f, 0.01f, 10, 90, false, true);
+                    CraftManager.GetInstance().isFloatingNode = false;
+                }  
             }
-
             line.enabled = false;
         }
-        
-
     }
-
-
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
         if (!attached)

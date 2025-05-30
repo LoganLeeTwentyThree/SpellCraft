@@ -23,6 +23,10 @@ public class CraftCard : MonoBehaviour
 
     public SpellNode GetLast()
     {
+        if(last == 0)
+        {
+            return null;
+        }
         return nodeArr[last - 1];
     }
 
