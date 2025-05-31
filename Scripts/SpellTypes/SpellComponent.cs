@@ -89,6 +89,15 @@ public class SpellComponent : MonoBehaviour
 
     private void OnDestroy()
     {
+        /*Debug.Log("SpellComponent destroyed");
+        foreach (SpellNode node in spell.array)
+        {
+            if (node is TriggerNode triggerNode)
+            {
+                // removes the listener method on each trigger node so that they stop listening
+                triggerNode.listener(this, node, false);
+            }
+        }*/
         
     }
 

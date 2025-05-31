@@ -32,55 +32,22 @@ public class NodeFactory
         toAdd = new ActionNode(new UntargetedAction(GameAction.ActionType.DRAW, 
             (GameAction self) => //effect logic
             {
-            object gold;
-            self.parameters.TryGetValue("gold", out gold);
-            if(gold.GetType() != typeof(int))
-            {
-                Debug.LogError("Gold parameter must be an integer.");
-                return;
-            }
-            Inventory.GetInstance().AddGold((int)gold);
+                Inventory.GetInstance().AddGold((int)self.parameters["gold"]);
             }, 
             (int mult, GameAction self) => //multiplier logic
             {
-                object modified;
-                self.parameters.TryGetValue("modified", out modified);
-                object currentGold;
-                self.parameters.TryGetValue("gold", out currentGold);
-
-                if(modified == null || !(modified is bool) || currentGold == null || !(currentGold is int))
-                {
-                    Debug.LogError("Gold parameter must be an integer and modified must be a boolean.");
-                    return -1;
-                }
-
-                if (!(bool)modified)
+                if (!(bool)self.parameters["modified"])
                 {
                     //toggle modifier
-                    self.parameters.Remove("modified");
-                    self.parameters.Add("modified", true);
-                    
-                    if (currentGold == null)
-                    {
-                        self.parameters.Add("gold", 1);
-                    }
-                    else if (currentGold.GetType() != typeof(int))
-                    {
-                        Debug.LogError("Gold parameter must be an integer.");
-                        return -1;
-                    }
-
-                    self.parameters.Remove("gold");
-                    self.parameters.Add("gold", (int)currentGold * mult);
-                }else
+                    self.parameters["modified"] = true;
+                    self.parameters["gold"] = 1 * mult;
+                } else
                 {
-                    self.parameters.Remove("modified");
-                    self.parameters.Add("modified", false);
-                    self.parameters.Remove("gold");
-                    self.parameters.Add("gold", 1);
+                    self.parameters["modified"] = false;
+                    self.parameters["gold"] = 1;
                 }
 
-                    return (int)currentGold;
+                return (int)self.parameters["gold"];
             },
             new Dictionary<string, object> { { "gold", 1 }, {"modified", false } } // parameters
             ), (SpellNode self) => 
@@ -96,62 +63,26 @@ public class NodeFactory
         toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.ALTER, Targeting.enemyTarget, 
             (Character r, GameAction self) =>
             {
-                object reduction;
-                self.parameters.TryGetValue("reduction", out reduction);
-                if (reduction == null || !(reduction is int))
-                {
-                    Debug.LogError("Reduction parameter must be an integer.");
-                    return;
-                }
-                r.ChangeDamage((int)reduction);
+                r.ChangeDamage((int)self.parameters["reduction"]);
             }, (int mult, GameAction self) => 
             {
-                object modified;
-                self.parameters.TryGetValue("modified", out modified);
-                object reduction;
-                self.parameters.TryGetValue("reduction", out reduction);
-                if (modified == null || !(modified is bool) || reduction == null || !(reduction is int))
-                {
-                    Debug.LogError("Reduction parameter must be an integer and modified must be a boolean.");
-                    return -1;
-                }
 
-                if (!(bool)modified)
+                if (!(bool)self.parameters["modified"])
                 {
                     //toggle modifier
-                    self.parameters.Remove("modified");
-                    self.parameters.Add("modified", true);
-
-                    if (reduction == null)
-                    {
-                        self.parameters.Add("reduction", 1);
-                    }
-                    else if (reduction.GetType() != typeof(int))
-                    {
-                        Debug.LogError("Reduction parameter must be an integer.");
-                        return -1;
-                    }
-                    self.parameters.Remove("reduction");
-                    self.parameters.Add("reduction", (int)reduction * mult);
+                    self.parameters["modified"] = true;
+                    self.parameters["reduction"] = (int)-1 * mult;
                 }
                 else
                 {
-                    self.parameters.Remove("modified");
-                    self.parameters.Add("modified", false);
-                    self.parameters.Remove("reduction");
-                    self.parameters.Add("reduction", 1);
+
+                    self.parameters["modified"] = false;
+                    self.parameters["reduction"] = -1;
                 }
-                return (int)reduction * mult;
+                return (int)self.parameters["reduction"];
             }, new Dictionary<string, object> { { "reduction", -1 }, { "modified", false } })// parameters
             , (SpellNode self) => {
-                object reduction;
-                ((ActionNode)self).action.parameters.TryGetValue("reduction", out reduction);
-                if (reduction == null || !(reduction is int))
-                {
-                    Debug.LogError("Reduction parameter must be an integer.");
-                    return "reduce your enemy's power by 1.";
-                }
-                return "reduce your enemy's power by " + -1 * (int)reduction + ".";
+                return "reduce your enemy's power by " + -1 * (int)((ActionNode)self).action.parameters["reduction"] + ".";
             }, 5);
         nodes.Add(toAdd);
         //end of node

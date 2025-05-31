@@ -340,7 +340,6 @@ MonoBehaviour:
   health: 5
   healthBar: {fileID: 6343827450635645693}
   healthText: {fileID: 6493664509216825609}
-  damage: 1
 --- !u!114 &-7778412966655435221
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -354,9 +353,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   usePhase: 1
+  useTurn: 1
   enabledState: 1
   confirmButton: {fileID: 1745029125092417960}
   enabledPhase: 2
+  enabledTurn: 1
 --- !u!120 &5540612131056700710
 LineRenderer:
   serializedVersion: 2

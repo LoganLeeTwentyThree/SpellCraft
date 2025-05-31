@@ -13,7 +13,7 @@ public class HandManager : Singleton<HandManager>
     [SerializeField] private SplineContainer splineContainer;
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private Deck deck;
-    private List<GameObject> handCards = new();
+    public List<GameObject> handCards = new();
     private void Update()
     {
         if(Input.GetKeyDown(KeyCode.E))

@@ -12,13 +12,16 @@ public class Selectable : MonoBehaviour, IPointerDownHandler
     private Light2D light2D;
     [SerializeField]
     private bool usePhase;
+    [SerializeField] private bool useTurn;
     [SerializeField]
     private GameManager.GameState enabledState;
     [SerializeField]
     private Button confirmButton;
     [SerializeField]
     private BattleManager.Phase enabledPhase;
-    
+    [SerializeField]
+    private BattleManager.Turn enabledTurn;
+
     private void Start()
     {
         light2D = GetComponent<Light2D>();
@@ -54,15 +57,12 @@ public class Selectable : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData data)
     {
+        
         if (GameManager.GetInstance().GetGameState() == enabledState)
         {
-            if (!usePhase || BattleManager.GetInstance().GetPhase() == enabledPhase)
+            BattleManager bm = BattleManager.GetInstance();
+            if ((!usePhase || bm.GetPhase() == enabledPhase) && (!useTurn || bm.GetTurn() == enabledTurn ))
                 Select();
         }
-    }
-
-    public static Selectable GetCurrentlySelected()
-    {
-        return currentlySelected;
     }
 }

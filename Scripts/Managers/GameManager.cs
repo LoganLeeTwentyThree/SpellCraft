@@ -86,7 +86,7 @@ public class GameManager : Singleton<GameManager>
         else
         {
             //Go to exit scene or something
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene(2);
         }
         
     }

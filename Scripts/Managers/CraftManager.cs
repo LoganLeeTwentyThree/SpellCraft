@@ -5,7 +5,7 @@ public class CraftManager : Singleton<CraftManager>
     [SerializeField] private GameObject inventoryObj;
     [SerializeField] private GameObject nodeInventoryObj;
     [SerializeField] private GameObject craftCanvas;
-    [SerializeField] public bool isFloatingNode = false;
+    [SerializeField] public GameObject floatingNode = null;
     public GameObject currentlyCrafting { get; set; }
     public override void Populate()
     {

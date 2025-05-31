@@ -103,8 +103,12 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
                     attached = true;
                     UpdateText();
                     transform.DOShakePosition(0.5f, 0.01f, 10, 90, false, true);
-                    CraftManager.GetInstance().isFloatingNode = false;
-                }  
+                    CraftManager.GetInstance().floatingNode = null;
+                }
+                else
+                {
+                    transform.DOShakePosition(0.5f, 0.05f, 10, 90, false, true);
+                }
             }
             line.enabled = false;
         }
@@ -124,7 +128,10 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
                     if(node.GetType() == typeof(ActionNode))
                     {
                         //unmodify if modified
-                        ((ActionNode)node).action.applyMultiplier(1, ((ActionNode)node).action);
+                        if (((bool)((ActionNode)node).action.parameters["modified"]) == true)
+                        {
+                            ((ActionNode)node).action.applyMultiplier(1, ((ActionNode)node).action);
+                        }
                     }
                     parentCard.RemoveNode(-1);
                     Inventory.GetInstance().AddNode(node);
@@ -140,7 +147,10 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
                     {
                         Inventory.GetInstance().RemoveNode(nodeIndexInInventory);
                         //unmodify if modified
-                        ((ActionNode)tNode).action.applyMultiplier(1, ((ActionNode)tNode).action);
+                        if (((bool)((ActionNode)node).action.parameters["modified"]) == true)
+                        {
+                            ((ActionNode)tNode).action.applyMultiplier(1, ((ActionNode)tNode).action);
+                        }
                         Inventory.GetInstance().AddNode(tNode);
                     }
                     parentCard.RemoveNode(nodeIndexInInventory);

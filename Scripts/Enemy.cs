@@ -26,7 +26,7 @@ public class Enemy : Character
     {
         for(int i = 0; i < 4; i++)
         {
-            if(i == 3)
+            if(BattleManager.GetInstance().GetPhase() == BattleManager.Phase.ATTACK)
             {
                 Attack();
             }

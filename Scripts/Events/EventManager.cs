@@ -18,18 +18,14 @@ public class EventManager : Singleton<EventManager>
     private Stack<GameObject> stackObjs = new();
     private Vector2 topPos = new Vector2(-370, -200);
     [SerializeField]private GameObject canvas;
+    private int poppedThisPhase = 0;
 
     private void Start()
     {
         //clear stack if the battle ends for any reason
         GameManager.GetInstance().GameStateChanged.AddListener((state) =>
         {
-            stack.Clear();
-            foreach (GameObject obj in stackObjs)
-            {
-                Destroy(obj);
-                topPos.y -= 50;
-            }
+            EmptyStack();
         });
 
         //Remove all listeners when the game state changes so that triggered abilities don't persist between encounters
@@ -38,6 +34,25 @@ public class EventManager : Singleton<EventManager>
             Pushed.RemoveAllListeners();
             Popped.RemoveAllListeners();
         });
+
+        BattleManager.GetInstance().PhaseChanged.AddListener((phase) =>
+        {
+            if (phase == Phase.ATTACK)
+            {
+                poppedThisPhase = 0; //reset the popped counter at the start of the attack phase
+            }
+        });
+    }
+
+    private void EmptyStack()
+    {
+        stack.Clear();
+        foreach (GameObject obj in stackObjs)
+        {
+            Destroy(obj);
+        }
+        stackObjs.Clear();
+        topPos = new Vector2(-370, -200);
     }
 
     //Pushes a new action to the stack
@@ -48,6 +63,7 @@ public class EventManager : Singleton<EventManager>
             //prevent infinite combos for now
             return;
         }
+        
         stack.Push(toPush);
         UpdateStackUI(toPush);
         Pushed.Invoke(toPush);
@@ -58,12 +74,22 @@ public class EventManager : Singleton<EventManager>
     //Pops the top action from the stack and resolves it
     public void Pop()
     {
-        GameAction action = stack.Pop();
-        action.Resolve(action);
-        UpdateStackUI(action);
-        Popped.Invoke(action);
+        poppedThisPhase++;
+        if (poppedThisPhase >= 10)
+        {
+            //prevent infinite combos for now
+            EmptyStack();
+            poppedThisPhase = 0;
+            return;
+        }
+        if(!StackIsEmpty())
+        {
+            GameAction action = stack.Pop();
+            action.Resolve(action);
+            UpdateStackUI(action);
+            Popped.Invoke(action);
+        }
         
-
 
     }
 
@@ -83,6 +109,7 @@ public class EventManager : Singleton<EventManager>
         else
         {
             //pop logic
+            if(stackObjs.Count == 0) return; //no objects to pop
             GameObject obj = stackObjs.Pop();
             if (isActiveAndEnabled) StartCoroutine(DestroyStackObj(obj));
             topPos.y -= 50;

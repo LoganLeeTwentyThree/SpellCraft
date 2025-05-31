@@ -2438,6 +2438,7 @@ MonoBehaviour:
   splineContainer: {fileID: 828425597}
   spawnPoint: {fileID: 769877066}
   deck: {fileID: 52001793}
+  handCards: []
 --- !u!4 &793728120
 Transform:
   m_ObjectHideFlags: 0
@@ -2968,6 +2969,7 @@ MonoBehaviour:
   inventoryObj: {fileID: 1356709154}
   nodeInventoryObj: {fileID: 1336911858}
   craftCanvas: {fileID: 994706891}
+  floatingNode: {fileID: 0}
 --- !u!1 &1054636123
 GameObject:
   m_ObjectHideFlags: 0
@@ -3958,7 +3960,7 @@ MonoBehaviour:
   nodeContentParent: {fileID: 460492661}
   inventoryItemPrefab: {fileID: 586184622032279211, guid: c98166ea2cf7e1b46bbf24112af08b3e, type: 3}
   inventoryNodePrefab: {fileID: 586184622032279211, guid: 0e77b9d05a36a784aa2b3f6da028abfc, type: 3}
-  gold: 200
+  gold: 20
   maxInventorySize: 20
   deck: {fileID: 52001793}
 --- !u!4 &1439735662

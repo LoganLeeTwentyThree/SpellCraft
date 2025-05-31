@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine.Events;
 using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : Singleton<BattleManager>
 {
@@ -87,6 +88,10 @@ public class BattleManager : Singleton<BattleManager>
         if(CurrentPhase != Phase.END)
         {
             CurrentPhase++;
+            if(HandManager.GetInstance().handCards.Count == 0 && CurrentPhase == Phase.PLAY)
+            {
+                CurrentPhase++;
+            }
             PhaseChanged.Invoke(CurrentPhase);
         }
         else
@@ -195,7 +200,15 @@ public class BattleManager : Singleton<BattleManager>
                     players[i] = null;
                 }
             }
-
+            foreach (var player in players)
+            {
+                if (player != null)
+                {
+                    return; //If any player is still alive, don't end the fight
+                }
+                
+            }
+            SceneManager.LoadScene(0);//if it gets here, all players are dead, so go to the main menu
         }
     }
 
@@ -210,6 +223,7 @@ public class BattleManager : Singleton<BattleManager>
         int currentFight = gm.GetCurrentFight();
         enemy.SetHealth(5 * currentFight);
         enemy.SetDamage(1 * currentFight);
+        enemy.goldValue = 10  + ( 5* currentFight);
         fightText.text = currentFight + "/4 fight in this run";
 
         CurrentPhase = Phase.START;

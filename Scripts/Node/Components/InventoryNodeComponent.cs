@@ -9,7 +9,6 @@ public class InventoryNodeComponent : MonoBehaviour
     [SerializeField] private Button button;
     [SerializeField] private GameObject nodePrefab;
     [SerializeField] private TextMeshProUGUI nameText;
-    private bool instantiated = false;
     private GameObject instance;
 
 
@@ -27,14 +26,19 @@ public class InventoryNodeComponent : MonoBehaviour
             return;
         }
 
+        Image image = GetComponent<Image>();
         if ( inv.GetSpellNode(nodeIndexInInventory).GetType() == typeof(ActionNode))
         {
+            image.color = new Color(1f, 0.5f, 0.5f);
+            
             nodePrefab = Resources.Load<GameObject>("ActionNode");
         }else if (inv.GetSpellNode(nodeIndexInInventory).GetType() == typeof(TriggerNode))
         {
+            image.color = new Color(0.5f, 1f, 1f);
             nodePrefab = Resources.Load<GameObject>("TriggerNode");
         }else if (inv.GetSpellNode(nodeIndexInInventory).GetType() == typeof(ConjunctionNode))
         {
+            image.color = new Color(0.75f, 1f, 0.5f);
             nodePrefab = Resources.Load<GameObject>("ConjunctionNode");
         }
 
@@ -51,15 +55,14 @@ public class InventoryNodeComponent : MonoBehaviour
             return;
         }
 
-        if (!instantiated && !cm.isFloatingNode)
+        if (cm.floatingNode is null)
         {
             instance = Instantiate(nodePrefab, new Vector2(-40, 3), Quaternion.identity);
             instance.GetComponent<NodeComponent>().nodeIndexInInventory = nodeIndexInInventory;
-            instantiated = true;
-            cm.isFloatingNode = true;
+            cm.floatingNode = instance;
 
         }
-        else
+        else if (cm.floatingNode is not null)
         {
             if (instance != null)
             {
@@ -69,11 +72,17 @@ public class InventoryNodeComponent : MonoBehaviour
                 }
 
                 Destroy(instance);
-                instantiated = false;
-                cm.isFloatingNode = false;
+                cm.floatingNode = null;
 
             }
-            
+            else
+            {
+                Destroy(cm.floatingNode);
+                instance = Instantiate(nodePrefab, new Vector2(-40, 3), Quaternion.identity);
+                instance.GetComponent<NodeComponent>().nodeIndexInInventory = nodeIndexInInventory;
+                cm.floatingNode = instance;
+            }
+                
         }
     }
 }

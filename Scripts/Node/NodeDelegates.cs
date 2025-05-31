@@ -26,8 +26,7 @@ namespace NodeDelegates
 
         public static TargetedAction.FindTarget allyTarget = () =>
         {
-            PlayerCharacter[] characters = BattleManager.GetInstance().GetPlayers();
-            return characters[Random.Range(0, characters.Length - 1)];
+            return BattleManager.GetInstance().GetRandomPlayer();
         };
     }
 
@@ -39,7 +38,7 @@ namespace NodeDelegates
             {
                 if (action.GetActionType() == GameAction.ActionType.ATTACK)
                 {
-                    sc.Trigger(n);
+                    if(sc != null && sc.gameObject != null) sc.Trigger(n);
                 }
             });
         };
@@ -50,7 +49,7 @@ namespace NodeDelegates
             {
                 if (action.GetActionType() == GameAction.ActionType.HEAL)
                 {
-                    sc.Trigger(n);
+                    if (sc != null && sc.gameObject != null) sc.Trigger(n);
                 }
             });
         };
@@ -61,7 +60,7 @@ namespace NodeDelegates
             {
                 if (action.GetActionType() == GameAction.ActionType.DIE)
                 {
-                    sc.Trigger(n);
+                    if (sc != null && sc.gameObject != null) sc.Trigger(n);
                 }
             });
         };
@@ -72,7 +71,7 @@ namespace NodeDelegates
             {
                 if (phase == BattleManager.Phase.END && BattleManager.GetInstance().GetTurn() == BattleManager.Turn.PLAYER)
                 {
-                    sc.Trigger(n);
+                    if (sc != null && sc.gameObject != null) sc.Trigger(n);
                 }
             });
         };
