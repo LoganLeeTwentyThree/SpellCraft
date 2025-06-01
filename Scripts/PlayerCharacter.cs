@@ -28,6 +28,7 @@ public class PlayerCharacter : Character
                 c.ChangeHealth(-damage); 
                 SoundManager.GetInstance().PlaySound("Attack"); 
             });
+            newDamageEvent.SetSource(gameObject.name);
             EventManager.GetInstance().Push(newDamageEvent);
         }
             

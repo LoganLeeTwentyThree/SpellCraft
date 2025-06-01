@@ -12,16 +12,6 @@ public class InventoryItemComponent : MonoBehaviour
     private static GameObject craftingItem;
 
 
-    private void Start()
-    {
-       
-    }
-
-    public int GetItemIndex()
-    {
-        return itemIndexInInventory;
-    }
-
     public void SetItem(int index)
     {
         itemIndexInInventory = index;

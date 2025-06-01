@@ -19,6 +19,7 @@ public class EventManager : Singleton<EventManager>
     private Vector2 topPos = new Vector2(-370, -200);
     [SerializeField]private GameObject canvas;
     private int poppedThisPhase = 0;
+    private bool isResolving = false;
 
     private void Start()
     {
@@ -67,7 +68,10 @@ public class EventManager : Singleton<EventManager>
         stack.Push(toPush);
         UpdateStackUI(toPush);
         Pushed.Invoke(toPush);
-
+        if (!isResolving)
+        {
+            StartCoroutine(ResolveStack()); //start resolving the stack if it's not already resolving
+        }
 
     }
 
@@ -102,7 +106,7 @@ public class EventManager : Singleton<EventManager>
             //push logic
             GameObject obj = Instantiate(stackPrefab, topPos, Quaternion.identity);
             obj.transform.SetParent(canvas.transform, false);
-            obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource();
+            obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetActionType() == GameAction.ActionType.ATTACK ? action.GetSource() + " " + action.GetActionType() + "s!" : action.GetSource() + "!";
             stackObjs.Push(obj);
             topPos.y += 50;
         }
@@ -116,6 +120,20 @@ public class EventManager : Singleton<EventManager>
         }
             
         
+    }
+
+    private IEnumerator ResolveStack()
+    {
+        yield return new WaitForSeconds(0.5f);
+        Pop();
+        if(!StackIsEmpty())
+        {
+            StartCoroutine(ResolveStack()); //continue resolving the stack until it's empty
+        }
+        else
+        {
+            isResolving = false; //set resolving to false when the stack is empty
+        }
     }
 
     private IEnumerator DestroyStackObj(GameObject obj)
@@ -132,11 +150,8 @@ public class EventManager : Singleton<EventManager>
 
     public void Update()
     {
-        //stack resolution and phase procession logic
-        if(Input.GetKeyDown(KeyCode.Space) && !StackIsEmpty())
-        {
-            Pop();
-        }else if(Input.GetKeyDown(KeyCode.Space) && StackIsEmpty())
+        //phase procession logic
+        if(Input.GetKeyDown(KeyCode.Space) && StackIsEmpty())
         {
             BattleManager bm = BattleManager.GetInstance();
             if (bm.GetTurn() == Turn.PLAYER)

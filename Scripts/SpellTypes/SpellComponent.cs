@@ -48,12 +48,12 @@ public class SpellComponent : MonoBehaviour
                 if(spell.array[i + 1].GetType() == typeof(ActionNode))
                 {
                     ActionNode an = (ActionNode)spell.array[i + 1];
-                    an.Execute(spell.defaultName);
+                    an.Execute(gameObject.name + " uses " + spell.defaultName);
                     break;
                 }else if(spell.array[i + 1].GetType() == typeof(ConjunctionNode))
                 {
                     ConjunctionNode cn = (ConjunctionNode)spell.array[i + 1];
-                    cn.Execute(spell.defaultName);
+                    cn.Execute(gameObject.name + " uses " + spell.defaultName);
                     break;
                 }
                 else
@@ -89,15 +89,7 @@ public class SpellComponent : MonoBehaviour
 
     private void OnDestroy()
     {
-        /*Debug.Log("SpellComponent destroyed");
-        foreach (SpellNode node in spell.array)
-        {
-            if (node is TriggerNode triggerNode)
-            {
-                // removes the listener method on each trigger node so that they stop listening
-                triggerNode.listener(this, node, false);
-            }
-        }*/
+        
         
     }
 

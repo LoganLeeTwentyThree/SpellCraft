@@ -22,17 +22,17 @@ public class ItemComponent : MonoBehaviour
     {
         
         Inventory inv = Inventory.GetInstance();
-        if (goldText != null)
+        if (goldText != null && itemIndexInInventory >= 0)
         {
             goldText.text = inv.GetItem(itemIndexInInventory).GetValue().ToString();
         }
 
-        if (itemNameText != null)
+        if (itemNameText != null && itemIndexInInventory >= 0)
         {
             itemNameText.text = inv.GetItem(itemIndexInInventory).GetItemName();
         }
 
-        if(itemDescriptionText != null)
+        if(itemDescriptionText != null && itemIndexInInventory >= 0)
         {
             itemDescriptionText.text = inv.GetItem(itemIndexInInventory).GetDescription();
         }
@@ -41,15 +41,17 @@ public class ItemComponent : MonoBehaviour
 
     public void SetItemName(string itemName)
     {
-        Inventory.GetInstance().GetItem(itemIndexInInventory).SetItemName(itemName);
+        if(itemIndexInInventory >= 0)
+        {
+            Inventory.GetInstance().GetItem(itemIndexInInventory).SetItemName(itemName);
+        }
+        
         itemNameText.text = itemName;
     }
 
     public void SetItemName()
     {
-        Inventory.GetInstance().GetItem(itemIndexInInventory).SetItemName(itemNameText.text);
-        
-
+        if(itemIndexInInventory >= 0) Inventory.GetInstance().GetItem(itemIndexInInventory).SetItemName(itemNameText.text);
     }
     public Item GetItem()
     {
@@ -91,7 +93,7 @@ public class ItemComponent : MonoBehaviour
             SoundManager.GetInstance().PlaySound("UseItem");
             GameObject castParticles = Resources.Load<GameObject>("CastEffect");
             target.StartCoroutine(target.showParticles(castParticles));
-            target.transform.DOJump(target.transform.position, 1, 1, 0.5f);
+            target.StartCoroutine(target.Jump(1));
             BattleManager.GetInstance().ChangePhase();
         }
     }

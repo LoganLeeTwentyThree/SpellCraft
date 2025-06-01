@@ -11,7 +11,7 @@ public class NodeFactory
     {
         //----TRIGGER NODES----
         //This node triggers when you attack
-        SpellNode toAdd = new TriggerNode(GameAction.ActionType.ATTACK, (SpellNode self) => "Whenever you attack,", 5, Triggers.attackTrigger);
+        SpellNode toAdd = new TriggerNode(GameAction.ActionType.ATTACK, (SpellNode self) => "Whenever I attack,", 5, Triggers.attackTrigger);
         nodes.Add(toAdd);
 
         //This node triggers when you heal
@@ -29,7 +29,7 @@ public class NodeFactory
         
         //----ACTION NODES----        
         //This node gives you gold
-        toAdd = new ActionNode(new UntargetedAction(GameAction.ActionType.DRAW, 
+        toAdd = new ActionNode(new UntargetedAction(GameAction.ActionType.GOLD, 
             (GameAction self) => //effect logic
             {
                 Inventory.GetInstance().AddGold((int)self.parameters["gold"]);
@@ -52,9 +52,7 @@ public class NodeFactory
             new Dictionary<string, object> { { "gold", 1 }, {"modified", false } } // parameters
             ), (SpellNode self) => 
             {
-                object gold;
-                ((ActionNode)self).action.parameters.TryGetValue("gold", out gold);
-                return "gain " + gold + " gold.";
+                return "gain " + ((ActionNode)self).action.parameters["gold"] + " gold.";
             }, 7);
         nodes.Add(toAdd);
         //end of node
@@ -87,8 +85,56 @@ public class NodeFactory
         nodes.Add(toAdd);
         //end of node
 
+        //This node heals a character by 1
+        toAdd = new ActionNode(new TargetedAction(GameAction.ActionType.HEAL, Targeting.damagedAllyTarget, 
+            (Character c, GameAction self) =>
+            {
+                c.ChangeHealth((int)self.parameters["heal"]);
+            }, 
+            (int mult, GameAction self) =>
+            {
+                if (!(bool)self.parameters["modified"])
+                {
+                    //toggle modifier
+                    self.parameters["modified"] = true;
+                    self.parameters["heal"] = 1 * mult;
+                }
+                else
+                {
+                    self.parameters["modified"] = false;
+                    self.parameters["heal"] = 1;
+                }
+                return (int)self.parameters["heal"];
+            },
+            new Dictionary<string, object> { { "heal", 1 }, { "modified", false } })
+            , (SpellNode self) => "heal a damaged ally by " + ((ActionNode)self).action.parameters["heal"], 2);
+        nodes.Add(toAdd);
+        //end of node
+
+
         //----CONJUNCTION NODES----
-        toAdd = new ConjunctionNode(new TargetedAction(GameAction.ActionType.DAMAGE, Targeting.allyTarget, (Character r, GameAction self) => r.ChangeHealth(-1)), (SpellNode self) => "take 1 damage and", 5, 2);
+        toAdd = new ConjunctionNode(new TargetedAction(GameAction.ActionType.DAMAGE, Targeting.allyTarget, 
+            (Character r, GameAction self) =>
+            {
+                r.ChangeHealth(-(int)self.parameters["mult"] / 2);
+            }, 
+            (int mult, GameAction self) => 
+            {
+                if (!(bool)self.parameters["modified"])
+                {
+                    //toggle modifier
+                    self.parameters["modified"] = true;
+                    self.parameters["mult"] = (int)self.parameters["mult"] * mult;
+                }
+                else
+                {
+                    self.parameters["modified"] = false;
+                    self.parameters["mult"] = 2;
+                }
+                return (int)self.parameters["mult"];
+            }, 
+            new Dictionary<string, object> { { "mult", 2}, { "modified", false} }), 
+            (SpellNode self) => "take " + (int)((ConjunctionNode)self).action.parameters["mult"] / 2 + " damage and", 5);
         nodes.Add(toAdd);
 
 

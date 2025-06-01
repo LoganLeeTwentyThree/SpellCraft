@@ -59,11 +59,9 @@ public class ConjunctionNode : SpellNode
 {
     public GameAction action;
     public SpellComponent sc;
-    public int multiplier;
-    public ConjunctionNode(GameAction action, GetText text, int value, int multiplier) : base(text, value)
+    public ConjunctionNode(GameAction action, GetText text, int value) : base(text, value)
     {
         this.action = action;
-        this.multiplier = multiplier;
     }
     public void Execute(string source)
     {

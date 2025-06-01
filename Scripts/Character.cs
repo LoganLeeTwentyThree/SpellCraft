@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,15 +33,16 @@ public abstract class Character : MonoBehaviour
 
     public void ChangeHealth(int difference)
     {
+        Vector2 startPos = transform.position;
         //show particles based on difference
         if (difference < 0)
         {
-            transform.DOShakePosition(0.5f, difference, 10, 90, false, true);
+            StartCoroutine(Shake(difference));
             GameObject hurtParticles = Resources.Load<GameObject>("HurtEffect");
             StartCoroutine(showParticles(hurtParticles));
         }else if (difference > 0)
         {
-            transform.DOJump(transform.position, difference, 1, 0.5f);
+            StartCoroutine(Jump(difference));
             GameObject healParticles = Resources.Load<GameObject>("HealEffect");
             StartCoroutine(showParticles(healParticles));
         }
@@ -63,12 +65,29 @@ public abstract class Character : MonoBehaviour
         }
     }
 
+    public IEnumerator Shake(float intensity)
+    {
+        Vector2 startPos = transform.position;
+        transform.DOShakePosition(0.5f, intensity, 10, 90, false, true);
+        yield return new WaitForSeconds(0.5f);
+        transform.position = startPos; //reset position after shake
+    }
+
+    public IEnumerator Jump(float intensity)
+    {
+        Vector2 startPos = transform.position;
+        transform.DOJump(transform.position, intensity, 1, 0.5f);
+        yield return new WaitForSeconds(0.5f);
+        transform.position = startPos; //reset position after jump
+    }
+
+
     public void ChangeDamage(int difference)
     {
         damage += difference;
         GameObject alterParticles = Resources.Load<GameObject>("AlterEffect");
         StartCoroutine(showParticles(alterParticles));
-        transform.DOShakePosition(0.5f, difference, 1, 90, false, true);
+        StartCoroutine(Shake(difference * 0.1f));
         if (damage < 0)
         {
             damage = 0;

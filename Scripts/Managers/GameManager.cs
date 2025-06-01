@@ -78,7 +78,7 @@ public class GameManager : Singleton<GameManager>
     }
     public void ExitBattle()
     {
-        if(fights < 5)
+        if(fights < 4)
         {
             fights++;
             SetGameState(GameState.BUY);

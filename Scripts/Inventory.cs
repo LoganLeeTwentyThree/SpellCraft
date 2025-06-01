@@ -32,10 +32,6 @@ public class Inventory : Singleton<Inventory>
         }
         
     }
-    private void Start()
-    {
-        
-    }
 
     public int AddNode(SpellNode node)
     {
@@ -192,7 +188,6 @@ public class Inventory : Singleton<Inventory>
                 GameObject g = Instantiate(inventoryItemPrefab, contentParent.transform);
                 g.GetComponent<InventoryItemComponent>().SetItem(i);
             }
-
             if (spellNodes[i] != null)
             {
                 GameObject g = Instantiate(inventoryNodePrefab, nodeContentParent.transform);

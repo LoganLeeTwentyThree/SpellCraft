@@ -88,7 +88,7 @@ public class BattleManager : Singleton<BattleManager>
         if(CurrentPhase != Phase.END)
         {
             CurrentPhase++;
-            if(HandManager.GetInstance().handCards.Count == 0 && CurrentPhase == Phase.PLAY)
+            if(CurrentTurn == Turn.PLAYER && HandManager.GetInstance().handCards.Count == 0 && CurrentPhase == Phase.PLAY)
             {
                 CurrentPhase++;
             }
@@ -97,6 +97,7 @@ public class BattleManager : Singleton<BattleManager>
         else
         {
             ChangeTurn();
+            PhaseChanged.Invoke(CurrentPhase);
         }
         UpdatePhaseText();
         UpdateEventText();

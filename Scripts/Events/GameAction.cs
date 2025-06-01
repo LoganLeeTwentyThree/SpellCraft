@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class GameAction
 {
-    public enum ActionType { DRAW, DAMAGE, DIE, ATTACK, HEAL, ALTER, TURN };
+    public enum ActionType { DRAW, DAMAGE, DIE, ATTACK, HEAL, ALTER, TURN, GOLD };
     protected ActionType type;
     protected string source;
 

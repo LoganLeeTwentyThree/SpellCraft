@@ -36,7 +36,7 @@ namespace NodeDelegates
         {
             EventManager.GetInstance().Popped.AddListener((GameAction action) =>
             {
-                if (action.GetActionType() == GameAction.ActionType.ATTACK)
+                if (action.GetActionType() == GameAction.ActionType.ATTACK && sc != null && action.GetSource().Equals(sc.gameObject.name))
                 {
                     if(sc != null && sc.gameObject != null) sc.Trigger(n);
                 }

@@ -4,7 +4,6 @@ using TMPro;
 
 public class ShopManager : Singleton<ShopManager>
 {
-    [SerializeField] private GameObject buyCardPrefab;
     [SerializeField] private GameObject buyNodePrefab;
     private Vector2[] itemPositions = { new Vector2(-23, 0), new Vector2(-20, 0), new Vector2(-17, 0) };
     [SerializeField] private Transform inventoryObj;
@@ -29,7 +28,6 @@ public class ShopManager : Singleton<ShopManager>
         buyCanvas.SetActive(true);
         inventoryObj.transform.SetParent(transform);
         nodeInventoryObj.transform.SetParent(transform);
-        SpellFactory spellFactory = new SpellFactory();
         NodeFactory nodeFactory = new NodeFactory();
         //Populate shop with items
         for (int i = 0; i < 3; i++)
@@ -37,20 +35,9 @@ public class ShopManager : Singleton<ShopManager>
             
             if(itemsOnDisplay[i] == null)
             {
-                if( Random.Range(0,2) == 1)
-                {
-                    itemsOnDisplay[i] = Instantiate(buyCardPrefab, itemPositions[i], Quaternion.identity);
-                    CustomizableSpell spell = spellFactory.GetRandomSpell();
-                    itemsOnDisplay[i].GetComponent<ShopItemComponent>().SetItem(new Item(spell.defaultName, 10, spell.ToString(), spell));
-                }
-                else
-                {
-                    itemsOnDisplay[i] = Instantiate(buyNodePrefab, itemPositions[i], Quaternion.identity);
-                    SpellNode node = nodeFactory.GetRandomNode();
-                    itemsOnDisplay[i].GetComponent<ShopNodeComponent>().SetNode(node);
-                }
-                    
-                
+                itemsOnDisplay[i] = Instantiate(buyNodePrefab, itemPositions[i], Quaternion.identity);
+                SpellNode node = nodeFactory.GetRandomNode();
+                itemsOnDisplay[i].GetComponent<ShopNodeComponent>().SetNode(node);
             }
             
         }
@@ -83,6 +70,7 @@ public class ShopManager : Singleton<ShopManager>
             inventory.RemoveGold(itemComponent.GetItem().GetValue());
             Destroy(itemComponent.gameObject);
             UpdateGoldText();
+            Populate();
         }
     }
 
@@ -95,6 +83,7 @@ public class ShopManager : Singleton<ShopManager>
             inventory.RemoveGold(nodeComponent.GetNode().value);
             Destroy(nodeComponent.gameObject);
             UpdateGoldText();
+            Populate();
         }
     }
 

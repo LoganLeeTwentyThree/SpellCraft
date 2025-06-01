@@ -11,27 +11,40 @@ public class Enemy : Character
     {
         base.Start();
         //Subscribe to BattleManager turn changing event so that turn can be carried out when it starts
-        BattleManager.GetInstance().TurnChanged.AddListener((turn) =>
+        BattleManager.GetInstance().PhaseChanged.AddListener((phase) =>
         {
-            if (turn == BattleManager.Turn.ENEMY)
-            {
-                StartCoroutine(DoTurn());
-            }
+            StartCoroutine("DoTurn", phase);
+            
         }
         );
         
     }
 
-    private IEnumerator DoTurn()
+    private IEnumerator DoTurn(BattleManager.Phase phase)
     {
-        for(int i = 0; i < 4; i++)
+        if(BattleManager.GetInstance().GetTurn() != BattleManager.Turn.ENEMY)
         {
-            if(BattleManager.GetInstance().GetPhase() == BattleManager.Phase.ATTACK)
-            {
-                Attack();
-            }
-            
-            yield return new WaitForSeconds(1);
+            yield break; //if it's not the enemy's turn, do nothing
+        }
+        
+        
+        yield return new WaitForSeconds(.5f);
+        if (phase == BattleManager.Phase.START)
+        {
+            BattleManager.GetInstance().ChangePhase();
+        }
+        else if (phase == BattleManager.Phase.PLAY)
+        {
+            BattleManager.GetInstance().ChangePhase();
+        }
+        else if (phase == BattleManager.Phase.ATTACK)
+        {
+            Attack();
+            yield return new WaitForSeconds(.25f);
+            BattleManager.GetInstance().ChangePhase();
+        }
+        else if (phase == BattleManager.Phase.END)
+        {
             BattleManager.GetInstance().ChangePhase();
         }
     }

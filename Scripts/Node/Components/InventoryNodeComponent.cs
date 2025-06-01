@@ -11,12 +11,6 @@ public class InventoryNodeComponent : MonoBehaviour
     [SerializeField] private TextMeshProUGUI nameText;
     private GameObject instance;
 
-
-    public int GetNode()
-    {
-        return nodeIndexInInventory;
-    }
-
     public void SetNode(int index)
     {
         nodeIndexInInventory = index;
@@ -55,34 +49,37 @@ public class InventoryNodeComponent : MonoBehaviour
             return;
         }
 
-        if (cm.floatingNode is null)
+        
+
+        if (cm.floatingNode != null)
+        {
+            Destroy(cm.floatingNode);
+        }
+            
+        if(instance != null)
+        {
+            if(cm.currentlyCrafting.GetComponent<CraftCard>().GetLast() != Inventory.GetInstance().GetSpellNode(nodeIndexInInventory))
+            {
+                //dont remove the node if it is not the last one in the card
+                return;
+            }
+            if (instance.GetComponent<NodeComponent>().attached)
+            {
+                instance.GetComponent<NodeComponent>().UnAttach();
+            }
+            else
+            {
+                Destroy(instance);
+                instance = null;
+            }
+            
+        }
+        else
         {
             instance = Instantiate(nodePrefab, new Vector2(-40, 3), Quaternion.identity);
             instance.GetComponent<NodeComponent>().nodeIndexInInventory = nodeIndexInInventory;
             cm.floatingNode = instance;
-
         }
-        else if (cm.floatingNode is not null)
-        {
-            if (instance != null)
-            {
-                if (instance.GetComponent<NodeComponent>().attached)
-                {
-                    cm.currentlyCrafting.GetComponent<CraftCard>().RemoveNode(nodeIndexInInventory);
-                }
-
-                Destroy(instance);
-                cm.floatingNode = null;
-
-            }
-            else
-            {
-                Destroy(cm.floatingNode);
-                instance = Instantiate(nodePrefab, new Vector2(-40, 3), Quaternion.identity);
-                instance.GetComponent<NodeComponent>().nodeIndexInInventory = nodeIndexInInventory;
-                cm.floatingNode = instance;
-            }
-                
-        }
+            
     }
 }
