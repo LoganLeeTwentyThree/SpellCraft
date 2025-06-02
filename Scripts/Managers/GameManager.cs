@@ -27,7 +27,6 @@ public class GameManager : Singleton<GameManager>
     private void Start()
     {
         SetGameState(GameState.BUY);
-        
     }
 
     private void ToggleManager(string name)

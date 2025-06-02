@@ -11,12 +11,14 @@ public class BattleManager : Singleton<BattleManager>
     //Turn enum used for keeping track of whose turn it is
     public enum Turn { ENEMY, PLAYER };
     private Turn CurrentTurn = Turn.PLAYER;
-    public UnityEvent<Turn> TurnChanged;
+    public UnityEvent<Turn> TurnChanged = new();
 
     //Phase enum used for keeping track of the phases in each turn
     public enum Phase { START, PLAY, ATTACK, END };
     private Phase CurrentPhase = Phase.START;
-    public UnityEvent<Phase> PhaseChanged;
+    public UnityEvent<Phase> PhaseChanged = new();
+
+    public UnityEvent BattleStarted = new();
 
     [SerializeField]
     private GameObject enemyPrefab;
@@ -36,23 +38,7 @@ public class BattleManager : Singleton<BattleManager>
 
     [SerializeField] private GameObject battleCanvas;
 
-
-    new private void Awake()
-    {
-        base.Awake();
-
-        //Initialize Unity events
-        if (TurnChanged == null)
-        {
-            TurnChanged = new UnityEvent<Turn>();
-        }
-
-        if (PhaseChanged == null)
-        {
-            PhaseChanged = new UnityEvent<Phase>();
-        }
-
-    }
+    
     private void Start()
     {
         //Initialize UI elements
@@ -224,14 +210,21 @@ public class BattleManager : Singleton<BattleManager>
         int currentFight = gm.GetCurrentFight();
         enemy.SetHealth(5 * currentFight);
         enemy.SetDamage(1 * currentFight);
-        enemy.goldValue = 10  + ( 5* currentFight);
+        enemy.goldValue = 10  + ( 5 * currentFight);
         fightText.text = currentFight + "/4 fight in this run";
 
         CurrentPhase = Phase.START;
         CurrentTurn = Turn.PLAYER;
+        BattleStarted.Invoke();
+        PhaseChanged.Invoke(CurrentPhase);
+        TurnChanged.Invoke(CurrentTurn);
         UpdateTurnText();
         UpdatePhaseText();
+
+        //jank to remove stack objects that weren't done removing
+        Destroy(GameObject.Find("Stack 1"));
         
+
         return;
     }
 

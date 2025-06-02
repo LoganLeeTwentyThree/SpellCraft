@@ -6,6 +6,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem.EnhancedTouch;
 using static BattleManager;
+using DG.Tweening;
 
 public class EventManager : Singleton<EventManager>
 {
@@ -66,8 +67,9 @@ public class EventManager : Singleton<EventManager>
         }
         
         stack.Push(toPush);
-        UpdateStackUI(toPush);
         Pushed.Invoke(toPush);
+        UpdateStackUI(toPush);
+
         if (!isResolving)
         {
             StartCoroutine(ResolveStack()); //start resolving the stack if it's not already resolving
@@ -92,6 +94,8 @@ public class EventManager : Singleton<EventManager>
             action.Resolve(action);
             UpdateStackUI(action);
             Popped.Invoke(action);
+            
+
         }
         
 
@@ -104,11 +108,8 @@ public class EventManager : Singleton<EventManager>
         if(stack.Contains(action))
         {
             //push logic
-            GameObject obj = Instantiate(stackPrefab, topPos, Quaternion.identity);
-            obj.transform.SetParent(canvas.transform, false);
-            obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetActionType() == GameAction.ActionType.ATTACK ? action.GetSource() + " " + action.GetActionType() + "s!" : action.GetSource() + "!";
-            stackObjs.Push(obj);
-            topPos.y += 50;
+            GameObject obj = Instantiate(stackPrefab, topPos + Vector2.left * 500, Quaternion.identity);
+            CreateStackObj(obj, action);
         }
         else
         {
@@ -124,7 +125,7 @@ public class EventManager : Singleton<EventManager>
 
     private IEnumerator ResolveStack()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1);
         Pop();
         if(!StackIsEmpty())
         {
@@ -136,10 +137,20 @@ public class EventManager : Singleton<EventManager>
         }
     }
 
+    private void CreateStackObj(GameObject obj, GameAction action)
+    {
+        obj.transform.SetParent(canvas.transform, false);
+        obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetActionType() == GameAction.ActionType.ATTACK ? action.GetSource() + " " + action.GetActionType() + "s!" : action.GetSource() + "!";
+        obj.transform.DOMoveX(obj.transform.position.x + 500, 0.25f).SetEase(Ease.InQuad);
+        stackObjs.Push(obj);
+        topPos.y += 50;
+    }
+
     private IEnumerator DestroyStackObj(GameObject obj)
     {
         obj.GetComponent<Image>().color = Color.yellow;
-        yield return new WaitForSeconds(0.25f);
+        obj.transform.DOMoveX(obj.transform.position.x - 500, 0.25f).SetEase(Ease.InQuad);
+        yield return new WaitForSeconds(0.35f);
         Destroy(obj);
     }
 

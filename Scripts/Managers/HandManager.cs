@@ -52,6 +52,7 @@ public class HandManager : Singleton<HandManager>
             Quaternion rotation = Quaternion.LookRotation(up, Vector3.Cross(up, forward).normalized);
             handCards[i].transform.DOMove(splinePosition, 0.25f);
             handCards[i].transform.DOLocalRotateQuaternion(rotation, 0.25f);
+            handCards[i].GetComponent<ItemComponent>().SetOriginalPosition(splinePosition);
         }
     }
 

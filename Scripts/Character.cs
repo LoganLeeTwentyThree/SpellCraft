@@ -1,8 +1,10 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using ParticleSpawner;
 
 public abstract class Character : MonoBehaviour
 {
@@ -14,45 +16,43 @@ public abstract class Character : MonoBehaviour
     protected Slider healthBar;
     [SerializeField]
     protected TMPro.TextMeshProUGUI healthText;
+    protected GameManager gameManager;
 
     protected int damage = 1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Start()
     {
+        gameManager = GameManager.GetInstance();
+
+
         healthBar.maxValue = health;
         healthBar.value = health;
         healthText.text = health.ToString() + "/" + maxHealth.ToString();
     }
 
-    public IEnumerator showParticles(GameObject particles)
-    {
-        GameObject instance = Instantiate(particles, transform.position, Quaternion.identity);
-        yield return new WaitForSeconds(1);
-        Destroy(instance, 1);
-    }
+    
 
     public void ChangeHealth(int difference)
     {
+        ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
         Vector2 startPos = transform.position;
+        GameObject particles;
         //show particles based on difference
         if (difference < 0)
         {
             StartCoroutine(Shake(difference));
-            GameObject hurtParticles = Resources.Load<GameObject>("HurtEffect");
-            StartCoroutine(showParticles(hurtParticles));
+            particles = Resources.Load<GameObject>("HurtEffect");
+            
         }else if (difference > 0)
         {
             StartCoroutine(Jump(difference));
-            GameObject healParticles = Resources.Load<GameObject>("HealEffect");
-            StartCoroutine(showParticles(healParticles));
+            particles = Resources.Load<GameObject>("HealEffect");
         }
         else
         {
-            GameObject healParticles = Resources.Load<GameObject>("NoDamageEffect");
-            StartCoroutine(showParticles(healParticles));
-            return; //no change in health
+            particles = Resources.Load<GameObject>("NoDamageEffect");
         }
-
+        StartCoroutine(ps.SpawnParticles(particles, transform.position, Quaternion.identity, 1));
 
         health += difference;
         healthBar.value = health;
@@ -85,9 +85,11 @@ public abstract class Character : MonoBehaviour
     public void ChangeDamage(int difference)
     {
         damage += difference;
-        GameObject alterParticles = Resources.Load<GameObject>("AlterEffect");
-        StartCoroutine(showParticles(alterParticles));
+        GameObject particles = difference < 0 ? Resources.Load<GameObject>("AlterEffect") : Resources.Load<GameObject>("BuffEffect");
+        ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
+        StartCoroutine(ps.SpawnParticles(particles, transform.position, Quaternion.identity, 1));
         StartCoroutine(Shake(difference * 0.1f));
+        //dont want enemies to heal you!
         if (damage < 0)
         {
             damage = 0;

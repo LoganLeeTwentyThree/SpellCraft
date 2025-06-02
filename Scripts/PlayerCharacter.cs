@@ -10,13 +10,19 @@ public class PlayerCharacter : Character
     {
         base.Start();
         BattleManager.GetInstance().PhaseChanged.AddListener(
-            (x) =>
+        (x) =>
+        {
+            if(x == BattleManager.Phase.ATTACK)
             {
-                if(x == BattleManager.Phase.ATTACK)
-                {
-                    hasAttacked = false;
-                }
-            });
+                hasAttacked = false;
+            }
+        });
+
+        BattleManager.GetInstance().BattleStarted.AddListener(
+        () =>
+        {
+            damage = 1;
+        });
     }
     override public void Attack()
     {
@@ -26,7 +32,8 @@ public class PlayerCharacter : Character
             
             TargetedAction newDamageEvent = new TargetedAction(GameAction.ActionType.ATTACK, () => { return BattleManager.GetInstance().GetEnemy(); }, (Character c, GameAction self) => { 
                 c.ChangeHealth(-damage); 
-                SoundManager.GetInstance().PlaySound("Attack"); 
+                SoundManager.GetInstance().PlaySound("Attack");
+                BattleManager.GetInstance().ChangePhase();
             });
             newDamageEvent.SetSource(gameObject.name);
             EventManager.GetInstance().Push(newDamageEvent);

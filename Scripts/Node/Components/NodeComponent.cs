@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ParticleSpawner;
 
 public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
@@ -13,6 +14,7 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
     [SerializeField] private TextMeshProUGUI nodeText;
     public bool attached = false;
     [SerializeField] private CraftCard parentCard;
+    public InventoryNodeComponent inventoryNodeComponent;
 
     //Targeting Line
     private LineRenderer line;
@@ -129,6 +131,11 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
             UpdateText();
             transform.DOShakePosition(0.5f, 0.01f, 10, 90, false, true);
             CraftManager.GetInstance().floatingNode = null;
+
+            //particles
+            GameObject particles = Resources.Load<GameObject>("SnapEffect");
+            ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
+            StartCoroutine(ps.SpawnParticles(particles, transform.position, Quaternion.identity, 0.5f));
         }
         else
         {
@@ -171,7 +178,8 @@ public class NodeComponent : MonoBehaviour, IDragHandler, IPointerUpHandler, IPo
             {
                 Inventory.GetInstance().AddNode(node);
             }
-            
+            inventoryNodeComponent.ToggleColor(true);
+
             Destroy(gameObject);
         }
     }

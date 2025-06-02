@@ -129,7 +129,6 @@ public class CraftCard : MonoBehaviour
         }
         else if(last == 0 && node is not TriggerNode)
         {
-            Debug.Log("Invalid Node");
             return false;
         }
 
@@ -261,6 +260,9 @@ public class CraftCard : MonoBehaviour
 
         //from here, assume spell is saveable
 
+        ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
+        StartCoroutine(ps.SpawnParticles(Resources.Load<GameObject>("SnapEffect"), transform.position, Quaternion.identity, 0.5f, 2));
+
         //create crafting spell to put in inventory
         string title = GetComponentInChildren<TMP_InputField>().text;
         craftingSpell = new CustomizableSpell(title);
@@ -292,14 +294,15 @@ public class CraftCard : MonoBehaviour
             Inventory.GetInstance().AddItem(newItem);
         }
         
-        if(invComponent is not null)
+        if(invComponent != null)
         {
-            //card was in inventory and so has a component that can destory it
+            //card was in inventory and so has a component that can destroy it
             invComponent.MoveToItemSlot();
         }
         else
         {
             //card was not in inventory, so it must destroy itself :(
+            InventoryItemComponent.crafting = false;
             Destroy(gameObject);
         }
 

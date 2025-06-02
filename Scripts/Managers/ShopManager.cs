@@ -51,7 +51,9 @@ public class ShopManager : Singleton<ShopManager>
             
             for(int i = 0; i < 3; i++)
             {
-                Destroy(itemsOnDisplay[i]);
+                if(itemsOnDisplay[i] == null) continue;
+                ShopNodeComponent nodeComponent = itemsOnDisplay[i].GetComponent<ShopNodeComponent>();
+                nodeComponent.StartCoroutine(nodeComponent.DestroyAnimation());
                 itemsOnDisplay[i] = null;
             }
             inv.RemoveGold(5);
@@ -81,7 +83,7 @@ public class ShopManager : Singleton<ShopManager>
         {
             inventory.AddNode(nodeComponent.GetNode());
             inventory.RemoveGold(nodeComponent.GetNode().value);
-            Destroy(nodeComponent.gameObject);
+            nodeComponent.StartCoroutine(nodeComponent.BuyAnimation());
             UpdateGoldText();
             Populate();
         }
