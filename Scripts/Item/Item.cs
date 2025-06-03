@@ -8,12 +8,6 @@ public class Item
     [SerializeField] private int value;
     [SerializeField, TextArea(3, 10)] private string description;
     
-    public Item(string itemName, int value, string description)
-    {
-        this.itemName = itemName;
-        this.value = value;
-        this.description = description;
-    }
 
     public Item(string itemName, int value, string description, CustomizableSpell spell)
     {
@@ -22,6 +16,8 @@ public class Item
         this.value = value;
         this.description = description;
     }
+
+    
 
     public string GetItemName()
     {

@@ -1,7 +1,9 @@
 using DG.Tweening;
 using System;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ItemComponent : MonoBehaviour
 {
@@ -67,7 +69,6 @@ public class ItemComponent : MonoBehaviour
         {
             GetComponent<CraftCard>().itemIndexInInventory = itemIndexInInventory;
         }
-        
     }
 
     public void SetItem(Item item)
@@ -85,18 +86,13 @@ public class ItemComponent : MonoBehaviour
 
         PopulateText();
     }
-    public void Use(Character target)
+
+    public void Use(Character target = null)
     {
         Item item = Inventory.GetInstance().GetItem(itemIndexInInventory);
         if (item != null)
         {
             item.GetSpell().Cast(target);
-            SoundManager.GetInstance().PlaySound("UseItem");
-            GameObject castParticles = Resources.Load<GameObject>("CastEffect");
-            ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
-            StartCoroutine(ps.SpawnParticles(castParticles, target.transform.position, Quaternion.identity, 1));
-
-            target.StartCoroutine(target.Jump(1));
             BattleManager.GetInstance().ChangePhase();
         }
     }

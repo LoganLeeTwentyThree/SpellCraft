@@ -69,7 +69,11 @@ public class TargetedAction : GameAction
     override public void Resolve(GameAction self)
     {
         Character target = findTarget();
-        if (target == null) return;
+        if (target == null)
+        {
+            Debug.LogError(GetSource() + " tried to resolve a targeted action, but no target was found.");
+            return;
+        }
         effect(target,self);
     }
 }

@@ -119,17 +119,12 @@ public class CraftCard : MonoBehaviour
     {
         
         SpellNode node = Inventory.GetInstance().GetSpellNode(index);
-        if (last == 0 && node is TriggerNode)
+        if (last == 0)
         {
-            
             nodeArr[last] = node;
             spellNodeIndexes.Add(index);
             IncreaseNodeSpots();
             return true;
-        }
-        else if(last == 0 && node is not TriggerNode)
-        {
-            return false;
         }
 
         //check if the node is valid to add
@@ -168,57 +163,13 @@ public class CraftCard : MonoBehaviour
     }
 
     //add nodes by the node itself. This is only done for nodes that are already part of the card
-    //returns true if the node was successfully added, false otherwise
+    //validity is assumed due to the card having been saved already
     public bool AddNode(SpellNode node)
     {
-        if (last == 0 && node is TriggerNode)
-        {
-            nodeArr[last] = node;
-            spellNodeIndexes.Add(-1);
-            IncreaseNodeSpots();
-            return true;
-        }
-        else if(last == 0 && node is not TriggerNode)
-        {
-            Debug.Log("Invalid Node");
-            return false;
-        }
-
-        //check if the node is valid to add
-        bool valid = false;
-        if(node.GetType() == typeof(TriggerNode))
-        {
-            if(nodeArr[last - 1] is not TriggerNode)
-            {
-                valid = true;
-            }
-        }else if(node.GetType() == typeof(ActionNode))
-        {
-            if ((nodeArr[last - 1] is TriggerNode) || (nodeArr[last - 1].GetType() == typeof(ConjunctionNode)))
-            {
-                valid = true;
-            }
-        }
-        else if (node is ConjunctionNode)
-        {
-            if (nodeArr[last - 1] is not ActionNode)
-            {
-                valid = true;
-            }
-        }
-
-        if (valid)
-        {
-            nodeArr[last] = node;
-            spellNodeIndexes.Add(-1);
-            IncreaseNodeSpots();
-            return true;
-        }
-
-        Debug.Log("Invalid Node");
-        return false;
-        
-        
+        nodeArr[last] = node;
+        spellNodeIndexes.Add(-1);
+        IncreaseNodeSpots();
+        return true;
     }
 
     public void RemoveNode(int index)
@@ -266,10 +217,22 @@ public class CraftCard : MonoBehaviour
         //create crafting spell to put in inventory
         string title = GetComponentInChildren<TMP_InputField>().text;
         craftingSpell = new CustomizableSpell(title);
+        bool needsTarget = false;
         foreach(SpellNode sn in nodeArr)
         {
             if(sn != null)
+            {
                 craftingSpell.Add(sn);
+                if (sn is ActionNode an)
+                {
+                    if (an.action is TargetedAction) needsTarget = true;
+
+                }else if (sn is ConjunctionNode cn)
+                {
+                    if (cn.action is TargetedAction) needsTarget = true;
+                }
+            }
+                
         }
 
         foreach (int i in spellNodeIndexes)
@@ -283,18 +246,40 @@ public class CraftCard : MonoBehaviour
         }
 
         SoundManager.GetInstance().PlaySound("CraftItem");
+        if (craftingSpell.GetSpellType() == CustomizableSpell.SpellType.BURST)
+        {
+            if (needsTarget)
+            {
+                //burst spells target enemies for now!
+                craftingSpell.SetTargetTag("Enemy");
+            }
+            else
+            {
+                craftingSpell.SetTargetTag(null);
+            }
+        }
+        else
+        {
+            //assume enchantment spells target player
+            craftingSpell.SetTargetTag("Player");
+        }
+
         if (itemIndexInInventory >= 0)
         {
             //update existing item
             Inventory.GetInstance().GetItem(itemIndexInInventory).SetSpell(craftingSpell);
-        }else 
+        }
+        else 
         {
             //add new one if this is a new card
             Item newItem = new Item(title, 0, craftingSpell.ToString(), craftingSpell);
-            Inventory.GetInstance().AddItem(newItem);
+            itemIndexInInventory = Inventory.GetInstance().AddItem(newItem);
         }
+
+
         
-        if(invComponent != null)
+
+        if (invComponent != null)
         {
             //card was in inventory and so has a component that can destroy it
             invComponent.MoveToItemSlot();

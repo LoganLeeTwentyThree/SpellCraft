@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using UnityEngine.Rendering.Universal;
 
 public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
 {
@@ -20,6 +21,14 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
         line = GetComponent<LineRenderer>();
         lineVertices = new Vector3[2];
         cardEffect = GetComponent<ItemComponent>();
+        if (cardEffect.GetItem().GetSpell().GetSpellType() == CustomizableSpell.SpellType.ENCHANTMENT)
+        {
+            GetComponent<SpriteRenderer>().color = new Color(0.5f, 1f, 0.5f); //green color for enchantments
+        }else
+        {
+            GetComponent<SpriteRenderer>().color = new Color(1f, 0.5f, 0.5f); //red color for burst spells
+        }
+
     }
 
     void IDragHandler.OnDrag(PointerEventData eventData)
@@ -29,14 +38,38 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
 
     void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
     {
-        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        string target = cardEffect.GetItem().GetSpell().GetTargetTag();
 
-        if (hit && hit.collider.CompareTag("Player"))
+        if(target is null)
         {
-            if (cardEffect != null) cardEffect.Use(hit.collider.gameObject.GetComponent<Character>());
+            if (cardEffect != null) cardEffect.Use();
             HandManager.GetInstance().RemoveCard(gameObject);
-            transform.position = new Vector3(100, 100);
+            Destroy(gameObject);
         }
+        else
+        {
+            foreach (GameObject obj in GameObject.FindGameObjectsWithTag(target))
+            {
+                Light2D light = obj.GetComponent<Light2D>();
+                if (light == null)
+                {
+                    light = obj.AddComponent<Light2D>();
+                }
+
+                light.intensity = 0f;
+            }
+
+            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+
+            if (hit && hit.collider.CompareTag(target))
+            {
+                if (cardEffect != null) cardEffect.Use(hit.collider.gameObject.GetComponent<Character>());
+                HandManager.GetInstance().RemoveCard(gameObject);
+                Destroy(gameObject);
+            }
+        }
+        
 
         line.enabled = false;
         
@@ -44,7 +77,21 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
 
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
+        string target = cardEffect.GetItem().GetSpell().GetTargetTag();
+        if(target is not null)
+        {
+            foreach( GameObject obj in GameObject.FindGameObjectsWithTag(target))
+            {
+                Light2D light = obj.GetComponent<Light2D>();
+                if(light == null)
+                {
+                    light = obj.AddComponent<Light2D>();
+                }
 
+                light.intensity = 2f; 
+                light.color = Color.red; 
+            }
+        }
         line.enabled = true;
         RefreshLineVertices();
     }

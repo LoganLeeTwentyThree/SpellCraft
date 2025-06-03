@@ -5472,6 +5472,9 @@ MonoBehaviour:
   PhaseChanged:
     m_PersistentCalls:
       m_Calls: []
+  BattleStarted:
+    m_PersistentCalls:
+      m_Calls: []
   enemyPrefab: {fileID: 6317080791632353917, guid: be739d3bdc18ae449bfd7142160c9bbb, type: 3}
   players:
   - {fileID: 2011401737}
