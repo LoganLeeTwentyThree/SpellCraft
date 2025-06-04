@@ -65,4 +65,14 @@ public class Enemy : Character
             Destroy(gameObject);
         }));
     }
+
+    public override void Exhaust(int rounds)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void UnExhaust()
+    {
+        throw new System.NotImplementedException();
+    }
 }

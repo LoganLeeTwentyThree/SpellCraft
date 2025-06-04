@@ -124,4 +124,6 @@ public abstract class Character : MonoBehaviour
 
     public abstract void Attack();
     public abstract void Die();
+    public abstract void Exhaust(int rounds);
+    public abstract void UnExhaust();
 }

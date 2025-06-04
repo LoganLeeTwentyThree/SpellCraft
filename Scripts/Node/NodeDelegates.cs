@@ -5,28 +5,33 @@ namespace NodeDelegates
 {
     public static class Targeting
     {
-        public static TargetedAction.FindTarget enemyTarget = () =>
+        public static TargetedAction.TargetTagGenerater enemyTarget = () =>
         {
-            return BattleManager.GetInstance().GetEnemy();
+            BattleManager.GetInstance().GetEnemy().gameObject.tag = "Target";
+            return;
         };
 
-        public static TargetedAction.FindTarget damagedAllyTarget = () =>
+        public static TargetedAction.TargetTagGenerater damagedAllyTarget = () =>
         {
             List<PlayerCharacter> damagedCharacters = new();
             foreach (PlayerCharacter c in BattleManager.GetInstance().GetPlayers())
             {
                 if (c.GetHealth() != c.GetMaxHealth())
                 {
-                    damagedCharacters.Add(c);
+                    c.gameObject.tag = "Target";
                 }
             }
 
-            return damagedCharacters.Count != 0 ? damagedCharacters[Random.Range(0, damagedCharacters.Count - 1)] : null;
+            return;
         };
 
-        public static TargetedAction.FindTarget allyTarget = () =>
+        public static TargetedAction.TargetTagGenerater allyTarget = () =>
         {
-            return BattleManager.GetInstance().GetRandomPlayer();
+            foreach(PlayerCharacter c in BattleManager.GetInstance().GetPlayers())
+            {
+                c.gameObject.tag = "Target";
+            }
+            return;
         };
     }
 

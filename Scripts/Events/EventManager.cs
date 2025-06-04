@@ -4,9 +4,9 @@ using UnityEngine.Events;
 using TMPro;
 using System.Collections;
 using UnityEngine.UI;
-using UnityEngine.InputSystem.EnhancedTouch;
 using static BattleManager;
 using DG.Tweening;
+using Unity.VisualScripting;
 
 public class EventManager : Singleton<EventManager>
 {
@@ -21,9 +21,11 @@ public class EventManager : Singleton<EventManager>
     [SerializeField]private GameObject canvas;
     private int poppedThisPhase = 0;
     private bool isResolving = false;
+    private TargetingManager tm;
 
     private void Start()
     {
+        tm = TargetingManager.GetInstance();
         //clear stack if the battle ends for any reason
         GameManager.GetInstance().GameStateChanged.AddListener((state) =>
         {
@@ -80,6 +82,8 @@ public class EventManager : Singleton<EventManager>
     //Pops the top action from the stack and resolves it
     public void Pop()
     {
+        if(isResolving || tm.isTargeting) return; //prevent popping while resolving the stack
+        isResolving = true; 
         poppedThisPhase++;
         if (poppedThisPhase >= 10)
         {
@@ -91,14 +95,28 @@ public class EventManager : Singleton<EventManager>
         if(!StackIsEmpty())
         {
             GameAction action = stack.Pop();
-            action.Resolve(action);
-            UpdateStackUI(action);
-            Popped.Invoke(action);
-            
 
+            if (action is not TargetedAction) ResolveAction(action); //resolve the action immediately if it's not targeted
+            else if (action is TargetedAction ta)
+            {
+                tm.ShowTargets((Character c) => OnTargetSelect(c, action), ta.enableTargets);
+            }
         }
-        
+    }
 
+    private void OnTargetSelect(Character target, GameAction a)
+    {
+        tm.HideTargets();
+        ((TargetedAction)a).SetTarget(target); 
+        ResolveAction(a);
+    }
+
+    private void ResolveAction(GameAction action)
+    {
+        action.Resolve(action);
+        isResolving = false;
+        UpdateStackUI(action);
+        Popped.Invoke(action);
     }
 
     //Instantiates stack UI elements.
@@ -108,8 +126,7 @@ public class EventManager : Singleton<EventManager>
         if(stack.Contains(action))
         {
             //push logic
-            GameObject obj = Instantiate(stackPrefab, topPos + Vector2.left * 500, Quaternion.identity);
-            CreateStackObj(obj, action);
+            CreateStackObj(action);
         }
         else
         {
@@ -125,20 +142,23 @@ public class EventManager : Singleton<EventManager>
 
     private IEnumerator ResolveStack()
     {
-        yield return new WaitForSeconds(1);
+        
         Pop();
-        if(!StackIsEmpty())
+        if (!StackIsEmpty())
         {
+            yield return new WaitForSeconds(1);
             StartCoroutine(ResolveStack()); //continue resolving the stack until it's empty
         }
         else
         {
             isResolving = false; //set resolving to false when the stack is empty
         }
+        
     }
 
-    private void CreateStackObj(GameObject obj, GameAction action)
+    private void CreateStackObj(GameAction action)
     {
+        GameObject obj = Instantiate(stackPrefab, topPos + Vector2.left * 500, Quaternion.identity);
         obj.transform.SetParent(canvas.transform, false);
         obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetActionType() == GameAction.ActionType.ATTACK ? action.GetSource() + " " + action.GetActionType() + "s!" : action.GetSource() + "!";
         obj.transform.DOMoveX(obj.transform.position.x + 500, 0.25f).SetEase(Ease.InQuad);
@@ -162,7 +182,7 @@ public class EventManager : Singleton<EventManager>
     public void Update()
     {
         //phase procession logic
-        if(Input.GetKeyDown(KeyCode.Space) && StackIsEmpty())
+        if(Input.GetKeyDown(KeyCode.Space) && !isResolving && !tm.isTargeting)
         {
             BattleManager bm = BattleManager.GetInstance();
             if (bm.GetTurn() == Turn.PLAYER)

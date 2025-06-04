@@ -12,15 +12,15 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
     [SerializeField]
     private TextMeshProUGUI titleText;
     private ItemComponent cardEffect;
+    private Vector2 startPos;
+    private Quaternion startRot;
+    private SpriteRenderer spriteRenderer;
     //Targeting Line
-    private LineRenderer line;
-    private Vector3[] lineVertices;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        line = GetComponent<LineRenderer>();
-        lineVertices = new Vector3[2];
         cardEffect = GetComponent<ItemComponent>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         if (cardEffect.GetItem().GetSpell().GetSpellType() == CustomizableSpell.SpellType.ENCHANTMENT)
         {
             GetComponent<SpriteRenderer>().color = new Color(0.5f, 1f, 0.5f); //green color for enchantments
@@ -33,74 +33,41 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
 
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
-        RefreshLineVertices();
+        transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + Vector3.forward * 10;
+        transform.rotation = Quaternion.identity;
+        if( transform.position.y > -2)
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0.5f); //make the card semi-transparent when above the hand
+        }
+        else
+        {
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f); //make the card fully opaque when in the hand
+        }
     }
 
     void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
     {
-        string target = cardEffect.GetItem().GetSpell().GetTargetTag();
-
-        if(target is null)
+        if(transform.position.y > -2) //if the card is above the hand
         {
-            if (cardEffect != null) cardEffect.Use();
-            HandManager.GetInstance().RemoveCard(gameObject);
-            Destroy(gameObject);
-        }
-        else
-        {
-            foreach (GameObject obj in GameObject.FindGameObjectsWithTag(target))
+            if (cardEffect != null)
             {
-                Light2D light = obj.GetComponent<Light2D>();
-                if (light == null)
-                {
-                    light = obj.AddComponent<Light2D>();
-                }
-
-                light.intensity = 0f;
-            }
-
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-
-
-            if (hit && hit.collider.CompareTag(target))
-            {
-                if (cardEffect != null) cardEffect.Use(hit.collider.gameObject.GetComponent<Character>());
-                HandManager.GetInstance().RemoveCard(gameObject);
-                Destroy(gameObject);
+                cardEffect.Use(); //use the card effect
+                Destroy(gameObject); //destroy the card UI
             }
         }
-        
-
-        line.enabled = false;
-        
+        transform.position = startPos; 
+        transform.rotation = startRot;
+        spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
     }
 
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
-        string target = cardEffect.GetItem().GetSpell().GetTargetTag();
-        if(target is not null)
-        {
-            foreach( GameObject obj in GameObject.FindGameObjectsWithTag(target))
-            {
-                Light2D light = obj.GetComponent<Light2D>();
-                if(light == null)
-                {
-                    light = obj.AddComponent<Light2D>();
-                }
-
-                light.intensity = 2f; 
-                light.color = Color.red; 
-            }
-        }
-        line.enabled = true;
-        RefreshLineVertices();
+        startPos = transform.position;
+        startRot = transform.rotation; //store the original rotation
     }
 
-    private void RefreshLineVertices()
-    {
-        lineVertices[0] = transform.position;
-        lineVertices[1] = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10));
-        
-        line.SetPositions(lineVertices);
-    }
+
+
+
+
 }

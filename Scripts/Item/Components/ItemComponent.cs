@@ -1,7 +1,6 @@
 using DG.Tweening;
 using System;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -87,12 +86,12 @@ public class ItemComponent : MonoBehaviour
         PopulateText();
     }
 
-    public void Use(Character target = null)
+    public void Use()
     {
         Item item = Inventory.GetInstance().GetItem(itemIndexInInventory);
         if (item != null)
         {
-            item.GetSpell().Cast(target);
+            item.GetSpell().Cast();
             BattleManager.GetInstance().ChangePhase();
         }
     }

@@ -51,27 +51,31 @@ public abstract class GameAction
 public class TargetedAction : GameAction
 {
    
-    public delegate Character FindTarget();
-    public FindTarget findTarget;
+    public delegate void TargetTagGenerater();
+    public TargetTagGenerater enableTargets;
     public delegate void Effect(Character target, GameAction self);
     public Effect effect;
+    private Character target;
     //constructor for targeted actions with no multiplier logic
-    public TargetedAction(ActionType n_type, FindTarget findTarget, Effect effect) : base(n_type)
+    public TargetedAction(ActionType n_type, TargetTagGenerater findTarget, Effect effect) : base(n_type)
     {
-        this.findTarget = findTarget;
+        this.enableTargets = findTarget;
         this.effect = effect;
     }
-    public TargetedAction(ActionType n_type, FindTarget findTarget, Effect effect, ApplyMultiplier applyMultiplier, Dictionary<string, object> pairs) : base(n_type, applyMultiplier, pairs)
+    public TargetedAction(ActionType n_type, TargetTagGenerater findTarget, Effect effect, ApplyMultiplier applyMultiplier, Dictionary<string, object> pairs) : base(n_type, applyMultiplier, pairs)
     {
-        this.findTarget = findTarget;
+        this.enableTargets = findTarget;
         this.effect = effect;
+    }
+    public void SetTarget(Character c)
+    {
+        target = c;
     }
     override public void Resolve(GameAction self)
     {
-        Character target = findTarget();
         if (target == null)
         {
-            Debug.LogError(GetSource() + " tried to resolve a targeted action, but no target was found.");
+            Debug.LogWarning(GetSource() + " tried to resolve a targeted action, but no target was found.");
             return;
         }
         effect(target,self);

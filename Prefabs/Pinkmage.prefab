@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 289566812137171632}
   - component: {fileID: -7778412966655435221}
   - component: {fileID: 5540612131056700710}
+  - component: {fileID: 4594333886261472683}
   m_Layer: 0
   m_Name: Pinkmage
   m_TagString: Player
@@ -243,7 +244,7 @@ MonoBehaviour:
   m_BlendStyleIndex: 0
   m_FalloffIntensity: 0.5
   m_Color: {r: 1, g: 0, b: 0.78794384, a: 1}
-  m_Intensity: 0
+  m_Intensity: 0.2
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
   m_ApplyToSortingLayers: 00000000
@@ -474,6 +475,19 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &4594333886261472683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2018015572087956145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d73a8c53a6c3524bbd81b7e80bb85b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetColor: {r: 1, g: 0.52917725, b: 0, a: 1}
 --- !u!1 &3312983471772833665
 GameObject:
   m_ObjectHideFlags: 0

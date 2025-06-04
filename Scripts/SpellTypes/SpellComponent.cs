@@ -42,9 +42,14 @@ public class SpellComponent : MonoBehaviour
         return spell;
     }
 
-    public void Trigger(SpellNode node)
+    public void Trigger(SpellNode node, bool first = false)
     {
-        
+        if(first && node is ConjunctionNode cn_)
+        {
+            cn_.Execute(gameObject.name + " uses " + spell.defaultName);
+            return;
+        }
+
         int indexToExecute;
         if(node is TriggerNode or ConjunctionNode)
         {
@@ -58,14 +63,12 @@ public class SpellComponent : MonoBehaviour
         }
 
 
-        if (spell.array[indexToExecute] is ActionNode)
+        if (spell.array[indexToExecute] is ActionNode an)
         {
-            ActionNode an = (ActionNode)spell.array[indexToExecute];
             an.Execute(gameObject.name + " uses " + spell.defaultName);
         }
-        else if (spell.array[indexToExecute] is ConjunctionNode)
+        else if (spell.array[indexToExecute] is ConjunctionNode cn)
         {
-            ConjunctionNode cn = (ConjunctionNode)spell.array[indexToExecute];
             cn.Execute(gameObject.name + " uses " + spell.defaultName);
         }
                     

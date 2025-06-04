@@ -1,4 +1,3 @@
-using Mono.Cecil;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -26,47 +25,35 @@ public class CustomizableSpell
         spellType = type;
     }
 
-    public void Cast(Character to = null)
+    public void Cast()
     {
         SoundManager.GetInstance().PlaySound("UseItem");
-        SpellComponent sc;
-        if (to == null)
-        {
-            sc = Camera.main.gameObject.AddComponent<SpellComponent>();//add to camera lol idk
-        }else
-        {
-            sc = to.gameObject.AddComponent<SpellComponent>();
-        }
-
-
         if (spellType == SpellType.BURST)
         {
             //burst spell with target
+            SpellComponent sc = Camera.main.gameObject.AddComponent<SpellComponent>();// put it on the camera idk lol
             sc.SetSpell(this);
-            if (array[0] is ConjunctionNode cn)
-            {
-                cn.Execute(to.gameObject.name + " uses " + defaultName);
-            }
-            else
-            {
-                sc.Trigger(array[0]);
-            }
-
+            sc.Trigger(array[0], true); // execute the first node in the spell array
         }
         else
         {
-            //enchantment spell (target implied)
-            GameObject castParticles = Resources.Load<GameObject>("CastEffect");
-            ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
-            to.StartCoroutine(ps.SpawnParticles(castParticles, to.transform.position, Quaternion.identity, 1));
-
-            to.StartCoroutine(to.Jump(1));
-            sc.SetSpell(this);
+            BattleManager bm = BattleManager.GetInstance();
+            
+            TargetingManager.GetInstance().ShowTargets((Character c) => AttachEnchantment(c), NodeDelegates.Targeting.allyTarget);
         }
+    }
 
-                
-        
-        
+    private void AttachEnchantment(Character to)
+    {
+        SpellComponent sc = to.gameObject.AddComponent<SpellComponent>();
+        //enchantment spell (target implied)
+        GameObject castParticles = Resources.Load<GameObject>("CastEffect");
+        ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
+        to.StartCoroutine(ps.SpawnParticles(castParticles, to.transform.position, Quaternion.identity, 1));
+
+        to.StartCoroutine(to.Jump(1));
+        sc.SetSpell(this);
+        TargetingManager.GetInstance().HideTargets();
     }
 
     override public string ToString()
