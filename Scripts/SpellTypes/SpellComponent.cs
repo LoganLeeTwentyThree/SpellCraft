@@ -46,7 +46,7 @@ public class SpellComponent : MonoBehaviour
     {
         if(first && node is ConjunctionNode cn_)
         {
-            cn_.Execute(gameObject.name + " uses " + spell.defaultName);
+            cn_.Execute(gameObject.name + " uses " + spell.GetItemName());
             return;
         }
 
@@ -65,11 +65,11 @@ public class SpellComponent : MonoBehaviour
 
         if (spell.array[indexToExecute] is ActionNode an)
         {
-            an.Execute(gameObject.name + " uses " + spell.defaultName);
+            an.Execute(gameObject.name + " uses " + spell.GetItemName());
         }
         else if (spell.array[indexToExecute] is ConjunctionNode cn)
         {
-            cn.Execute(gameObject.name + " uses " + spell.defaultName);
+            cn.Execute(gameObject.name + " uses " + spell.GetItemName());
         }
                     
                 
@@ -92,7 +92,7 @@ public class SpellComponent : MonoBehaviour
             text.gameObject.SetActive(true);
         }
 
-        text.text += spell.defaultName + "\n";
+        text.text += spell.GetItemName() + "\n";
 
     }
 

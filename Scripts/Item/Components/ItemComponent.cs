@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ItemComponent : MonoBehaviour
 {
-    [SerializeField] private int itemIndexInInventory;
+    [SerializeField] private CustomizableSpell item;
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI itemNameText;
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
@@ -23,29 +23,28 @@ public class ItemComponent : MonoBehaviour
     private void PopulateText()
     {
         
-        Inventory inv = Inventory.GetInstance();
-        if (goldText != null && itemIndexInInventory >= 0)
+        if (goldText != null && item != null)
         {
-            goldText.text = inv.GetItem(itemIndexInInventory).GetValue().ToString();
+            goldText.text = item.GetValue().ToString();
         }
 
-        if (itemNameText != null && itemIndexInInventory >= 0)
+        if (itemNameText != null && item != null)
         {
-            itemNameText.text = inv.GetItem(itemIndexInInventory).GetItemName();
+            itemNameText.text = item.GetItemName();
         }
 
-        if(itemDescriptionText != null && itemIndexInInventory >= 0)
+        if(itemDescriptionText != null && item != null)
         {
-            itemDescriptionText.text = inv.GetItem(itemIndexInInventory).GetDescription();
+            itemDescriptionText.text = item.ToString();
         }
 
     }
 
     public void SetItemName(string itemName)
     {
-        if(itemIndexInInventory >= 0)
+        if(item != null)
         {
-            Inventory.GetInstance().GetItem(itemIndexInInventory).SetItemName(itemName);
+            item.SetItemName(itemName);
         }
         
         itemNameText.text = itemName;
@@ -53,45 +52,25 @@ public class ItemComponent : MonoBehaviour
 
     public void SetItemName()
     {
-        if(itemIndexInInventory >= 0) Inventory.GetInstance().GetItem(itemIndexInInventory).SetItemName(itemNameText.text);
+        if(item != null) item.SetItemName(itemNameText.text);
     }
-    public Item GetItem()
+    public CustomizableSpell GetItem()
     {
-        return Inventory.GetInstance().GetItem(itemIndexInInventory);
-    }
-
-    public void SetItem(int index)
-    {
-        itemIndexInInventory = index;
-        PopulateText();
-        if (GetComponent<CraftCard>() != null)
-        {
-            GetComponent<CraftCard>().itemIndexInInventory = itemIndexInInventory;
-        }
+        return item;
     }
 
-    public void SetItem(Item item)
+    public void SetItem(CustomizableSpell item)
     {
-        
-        Inventory inv = Inventory.GetInstance();
-        if(inv.GetIndexOfItem(item) != -1)
-        {
-            itemIndexInInventory = inv.GetIndexOfItem(item);
-        }
-        else
-        {
-            Debug.Log("IDK how this happened");
-        }
+        this.item = item;   
 
         PopulateText();
     }
 
     public void Use()
     {
-        Item item = Inventory.GetInstance().GetItem(itemIndexInInventory);
         if (item != null)
         {
-            item.GetSpell().Cast();
+            item.cast();
             BattleManager.GetInstance().ChangePhase();
         }
     }

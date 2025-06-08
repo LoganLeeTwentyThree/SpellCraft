@@ -79,10 +79,10 @@ public class ShopManager : Singleton<ShopManager>
     public void BuyNode(ShopNodeComponent nodeComponent)
     {
         Inventory inventory = Inventory.GetInstance();
-        if (inventory.GetGold() >= nodeComponent.GetNode().value)
+        if (inventory.GetGold() >= nodeComponent.GetNode().GetValue())
         {
-            inventory.AddNode(nodeComponent.GetNode());
-            inventory.RemoveGold(nodeComponent.GetNode().value);
+            inventory.AddItem(nodeComponent.GetNode());
+            inventory.RemoveGold(nodeComponent.GetNode().GetValue());
             nodeComponent.StartCoroutine(nodeComponent.BuyAnimation());
             UpdateGoldText();
             Populate();

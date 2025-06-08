@@ -36,7 +36,7 @@ public class SpellFactory
     public SpellFactory()
     {
 
-        //This spell deals 1 damage when you attack
+        /*This spell deals 1 damage when you attack
         CustomizableSpell toAdd = new CustomizableSpell("Hit Harder!");
         toAdd.Add(new TriggerNode(GameAction.ActionType.ATTACK, (SpellNode self) => { return "Whenever you attack,"; }, 5, Triggers.attackTrigger));
         toAdd.Add(new ActionNode(deal1, (SpellNode self) => " deal " + ((ActionNode)self).action.parameters["damage"] + " damage.", 5));
@@ -53,7 +53,7 @@ public class SpellFactory
         toAdd.Add(new TriggerNode(GameAction.ActionType.HEAL, (SpellNode self) => { return "Whenever you heal an ally, "; }, 5, Triggers.healTrigger));
         toAdd.Add(new ActionNode(deal1, (SpellNode self) => " deal " + ((ActionNode)self).action.parameters["damage"] + " damage.", 5));
         spells.Add(toAdd);
-
+        */
 
     }
 

@@ -1,23 +1,25 @@
 using System;
 using UnityEngine;
 
-public class Item
+public abstract class Item
 {
-    [SerializeField] private CustomizableSpell spell; 
-    [SerializeField] private string itemName;
-    [SerializeField] private int value;
-    [SerializeField, TextArea(3, 10)] private string description;
     
+    private string itemName;
+    private int value;
+    private string description;
 
-    public Item(string itemName, int value, string description, CustomizableSpell spell)
+    public Item(string itemName, int value)
     {
-        this.spell = spell;
+        this.itemName = itemName;
+        this.value = value;
+        this.description = "No description provided.";
+    }
+    public Item(string itemName, int value, string description)
+    {
         this.itemName = itemName;
         this.value = value;
         this.description = description;
     }
-
-    
 
     public string GetItemName()
     {
@@ -29,20 +31,9 @@ public class Item
         return value;
     }
 
-    public CustomizableSpell GetSpell()
-    {
-        return spell;
-    }
-
     public string GetDescription()
     {
         return description;
-    }
-
-    public void SetSpell(CustomizableSpell spell)
-    {
-        this.spell = spell;
-        SetDescription(spell.ToString());
     }
 
     public void SetDescription(string description)

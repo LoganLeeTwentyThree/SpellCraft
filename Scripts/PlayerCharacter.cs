@@ -34,11 +34,11 @@ public class PlayerCharacter : Character
         {
             if(turn == BattleManager.Turn.PLAYER)
             {
-                if (exhaustRounds != 1 && exhausted)
+                if (exhaustRounds != 0 && exhausted)
                 {
-                    Exhaust();
+                    exhaustRounds--;
                 }
-                else if(exhaustRounds == 1 && exhausted)
+                else if(exhaustRounds == 0 && exhausted)
                 {
                     
                     UnExhaust();
@@ -53,7 +53,7 @@ public class PlayerCharacter : Character
         if( hasAttacked == false && exhausted == false)
         {
             hasAttacked = true;
-            
+            Exhaust();
             TargetedAction newDamageEvent = new TargetedAction(GameAction.ActionType.ATTACK,
             Targeting.enemyTarget, 
             (Character c, GameAction self) => { 
@@ -88,7 +88,6 @@ public class PlayerCharacter : Character
 
     public override void UnExhaust()
     {
-        exhaustRounds = 0; 
         exhausted = false;
         selectable.enabled = true; 
         GetComponent<SpriteRenderer>().color = Color.white; 

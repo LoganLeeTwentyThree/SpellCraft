@@ -1,24 +1,27 @@
 using UnityEngine;
 
-public class SpellNode
+public class SpellNode : Item
 {
     public delegate string GetText(SpellNode self);
     public GetText getText;
-    public int value { get; set; }
 
-    public SpellNode(GetText getText, int value)
+    public SpellNode(GetText getText, int value, string name) : base(name, value)
     {
         this.getText = getText;
-        this.value = value;
     }
 
     public bool Equals(SpellNode other)
     {
-        if(getText(this).Equals(other.getText(this)))
+        if(getText(this).Equals(other.getText(other)))
         {
             return true;
         }
         return false;
+    }
+
+    new public string GetDescription()
+    {
+        return getText(this);
     }
 
 }
@@ -27,7 +30,7 @@ public class SpellNode
 public class ActionNode : SpellNode
 {
     public GameAction action;
-    public ActionNode( GameAction action, GetText text, int value) : base(text, value) 
+    public ActionNode( GameAction action, GetText text, int value) : base(text, value, "ActionNode") 
     {
         this.action = action;
     }
@@ -45,7 +48,7 @@ public class TriggerNode : SpellNode
     public delegate void Listen(SpellComponent sc, SpellNode node);
     public Listen listener;
     public GameAction.ActionType trigger { get; }
-    public TriggerNode( GameAction.ActionType trigger, GetText text, int value, Listen listener) : base(text, value)
+    public TriggerNode( GameAction.ActionType trigger, GetText text, int value, Listen listener) : base(text, value, "TriggerNode")
     {
         this.trigger = trigger;
         this.listener = listener;
@@ -59,7 +62,7 @@ public class ConjunctionNode : SpellNode
 {
     public GameAction action;
     public SpellComponent sc;
-    public ConjunctionNode(GameAction action, GetText text, int value) : base(text, value)
+    public ConjunctionNode(GameAction action, GetText text, int value) : base(text, value, "ActionNode")
     {
         this.action = action;
     }

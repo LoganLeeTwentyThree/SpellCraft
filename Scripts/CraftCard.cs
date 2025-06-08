@@ -1,32 +1,25 @@
-using NUnit.Framework;
 using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using DG.Tweening;
 
 public class CraftCard : MonoBehaviour
 {
-    public int itemIndexInInventory { get; set; }
     public CustomizableSpell craftingSpell { get; set; }
     private SpellNode[] nodeArr = new SpellNode[6];
-    [SerializeField] private List<int> spellNodeIndexes = new();
     [SerializeField] private List<GameObject> nodeSpots = new();
     [SerializeField] private int last = 0;
-    private InventoryItemComponent invComponent;
+    [SerializeField] private TextMeshProUGUI pointValueText;
+    [SerializeField] private TextMeshProUGUI saveText;
+    private int maxPointValue = 10;
+    private int currentPointValue = 0;
 
     private void Start()
     {
         CraftManager.GetInstance().currentlyCrafting = gameObject;
-        if (itemIndexInInventory >= 0)
-        {
-            craftingSpell = Inventory.GetInstance().GetItem(itemIndexInInventory).GetSpell();
-            CreateNodes();
-        }
-        else
-        {
-            nodeSpots[0].tag = "NodeSpot";
-        }
-        
+        UpdateText();
+
     }
 
     public SpellNode GetLast()
@@ -38,17 +31,11 @@ public class CraftCard : MonoBehaviour
         return nodeArr[last - 1];
     }
 
-    public void SetInvComponent(InventoryItemComponent invComponent)
-    {
-        this.invComponent = invComponent;
-    }
-
     public void CreateNodes()
     {
-        CustomizableSpell spell = Inventory.GetInstance().GetItem(itemIndexInInventory).GetSpell();
-        if (spell != null)
+        if (craftingSpell != null)
         {
-            foreach( SpellNode sn in spell.array)
+            foreach( SpellNode sn in craftingSpell.array)
             {
                 if(sn != null)
                 {
@@ -66,14 +53,16 @@ public class CraftCard : MonoBehaviour
                     {
                         prefab = Resources.Load<GameObject>("ConjunctionNode");
                     }
-                    GameObject g = Instantiate(prefab, nodeSpots[last].transform.position, Quaternion.identity);
+                    GameObject g = Instantiate(prefab, GetLastNodePosition(), Quaternion.identity);
                     g.transform.parent = transform;
 
                     //give node components their nodes
-                    g.GetComponent<NodeComponent>().SetNode(sn);
+                    NodeComponent nodeComponent = g.GetComponent<NodeComponent>();
+                    nodeComponent.SetNode(sn);
+
 
                     //Add the created nodes to the crafting card
-                    AddNode(g.GetComponent<NodeComponent>().node);
+                    AddNode(g.GetComponent<NodeComponent>().node, g);
                 }
                 
             }
@@ -87,16 +76,14 @@ public class CraftCard : MonoBehaviour
             Debug.LogError("NodeSpot Index Out of Bounds");
             return;
         }
-        nodeSpots[last].tag = "Untagged";
         nodeSpots[last].SetActive(false);
         last++;
 
         if (nodeArr[last - 1] is not ActionNode)
         {
-            nodeSpots[last].tag = "NodeSpot";
             nodeSpots[last].SetActive(true);
         }
-        
+
     }
 
     private void DecreaseNodeSpots()
@@ -106,27 +93,22 @@ public class CraftCard : MonoBehaviour
             Debug.LogError("NodeSpot Index Out of Bounds");
             return;
         }
-        nodeSpots[last].tag = "Untagged";
         nodeSpots[last].SetActive(false);
         last--;
-        nodeSpots[last].tag = "NodeSpot";
         nodeSpots[last].SetActive(true);
+        
     }
 
-    //add node by inventory index. This is only done for nodes that exist independently of the crafting card
+    //public add node that validates
     //returns true if the node was successfully added, false otherwise
-    public bool AddNode(int index)
+    public bool AddNode(SpellNode node, GameObject obj)
     {
-        
-        SpellNode node = Inventory.GetInstance().GetSpellNode(index);
         if (last == 0)
         {
-            nodeArr[last] = node;
-            spellNodeIndexes.Add(index);
-            IncreaseNodeSpots();
+            CommitNode(node, obj);
             return true;
         }
-
+        
         //check if the node is valid to add
         bool valid = false;
         if(node is TriggerNode)
@@ -152,9 +134,7 @@ public class CraftCard : MonoBehaviour
 
         if (valid)
         {
-            nodeArr[last] = Inventory.GetInstance().GetSpellNode(index);
-            spellNodeIndexes.Add(index);
-            IncreaseNodeSpots();
+            CommitNode(node, obj);
             return true;
         }
 
@@ -162,28 +142,69 @@ public class CraftCard : MonoBehaviour
             
     }
 
-    //add nodes by the node itself. This is only done for nodes that are already part of the card
-    //validity is assumed due to the card having been saved already
-    public bool AddNode(SpellNode node)
+    //Commit a node after validation
+    private void CommitNode(SpellNode node, GameObject obj)
     {
+        obj.transform.position = GetLastNodePosition();
+        obj.transform.parent = transform;
+        currentPointValue += node.GetValue();
         nodeArr[last] = node;
-        spellNodeIndexes.Add(-1);
         IncreaseNodeSpots();
-        return true;
+        UpdateText();
     }
 
-    public void RemoveNode(int index)
+    public bool RemoveNode(SpellNode node)
     {
+        if (node != nodeArr[last - 1]) return false;
+
+        currentPointValue -= nodeArr[last - 1].GetValue();
+        
         nodeArr[last] = null; 
-        spellNodeIndexes.Remove(index);
+        
         DecreaseNodeSpots();
+        UpdateText();
+        return true;
+
     }
 
     public bool IsValid()
     {
         if (last == 0) return false;
         if (nodeArr[last - 1] is not ActionNode) return false;
+        if (currentPointValue > maxPointValue) return false;
         return true;
+    }
+
+    public void SetSpell(CustomizableSpell spell)
+    {
+        craftingSpell = spell;
+        CreateNodes();
+    }
+
+    public Vector2 GetLastNodePosition()
+    {
+        return nodeSpots[last].transform.position;
+    }
+
+    private void UpdateText()
+    {
+        pointValueText.text = "Spell Points: " + currentPointValue + "/" + maxPointValue;
+        if(currentPointValue > maxPointValue)
+        {
+            pointValueText.color = Color.red;
+        }
+        else
+        {
+            pointValueText.color = Color.magenta;
+        }
+        if(last == 0)
+        {
+            saveText.text = "Cancel Crafting";
+        }
+        else
+        {
+            saveText.text = "Save Spell";
+        }
     }
 
     public void Save()
@@ -191,11 +212,6 @@ public class CraftCard : MonoBehaviour
         //if theres no nodes in the spell, fail to save
         if (last == 0)
         {
-            if(itemIndexInInventory >= 0)
-            {
-                Inventory.GetInstance().RemoveItem(itemIndexInInventory);
-            }
-            
             CraftManager.GetInstance().currentlyCrafting = null;
             InventoryItemComponent.crafting = false;
             Destroy(gameObject);
@@ -205,7 +221,9 @@ public class CraftCard : MonoBehaviour
         //if the spell is not valid, fail to save
         if (!IsValid())
         {
-            Debug.Log("Spell is not complete");
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            sr.color = new Color(1, 0.5f, 0.5f); //reddish
+            transform.DOShakePosition(0.5f, 0.1f).OnComplete(() => { transform.position = new Vector2(-40, 0); sr.color = Color.white; });
             return;
         }
 
@@ -216,82 +234,57 @@ public class CraftCard : MonoBehaviour
 
         //create crafting spell to put in inventory
         string title = GetComponentInChildren<TMP_InputField>().text;
-        craftingSpell = new CustomizableSpell(title);
-        bool needsTarget = false;
+        craftingSpell = new CustomizableSpell(title, currentPointValue);
+
         foreach(SpellNode sn in nodeArr)
         {
-            if(sn != null)
+            if (sn != null)
             {
                 craftingSpell.Add(sn);
-                if (sn is ActionNode an)
-                {
-                    if (an.action is TargetedAction) needsTarget = true;
-
-                }else if (sn is ConjunctionNode cn)
-                {
-                    if (cn.action is TargetedAction) needsTarget = true;
-                }
             }
-                
         }
 
-        foreach (int i in spellNodeIndexes)
+        if ( craftingSpell.GetSpellType() == CustomizableSpell.SpellType.BURST)
         {
-            //if the node was in the inventory, remove it
-            if (i > -1)
+            craftingSpell.SetCastBehavior(() =>
             {
-                Inventory.GetInstance().RemoveNode(i);
-            }
-                
+                //burst spell
+                SpellComponent sc = Camera.main.gameObject.AddComponent<SpellComponent>();// put it on the camera idk lol
+                sc.SetSpell(craftingSpell);
+                sc.Trigger(craftingSpell.array[0], true); // execute the first node in the spell array
+            });
+        }
+        else
+        {
+            //enchantment spell
+            craftingSpell.SetCastBehavior(() =>
+            {
+                TargetingManager.GetInstance().ShowTargets((Character c) =>
+                {
+                    SpellComponent sc = c.gameObject.AddComponent<SpellComponent>();
+                    //enchantment spell (target implied)
+                    GameObject castParticles = Resources.Load<GameObject>("CastEffect");
+                    ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
+                    c.StartCoroutine(ps.SpawnParticles(castParticles, c.transform.position, Quaternion.identity, 1));
+
+                    c.StartCoroutine(c.Jump(1));
+                    sc.SetSpell(craftingSpell);
+                    TargetingManager.GetInstance().HideTargets();
+
+                }, NodeDelegates.Targeting.allyTarget);
+
+
+            });
+            
         }
 
         SoundManager.GetInstance().PlaySound("CraftItem");
-        if (craftingSpell.GetSpellType() == CustomizableSpell.SpellType.BURST)
-        {
-            if (needsTarget)
-            {
-                //burst spells target enemies for now!
-                craftingSpell.SetTargetTag("Enemy");
-            }
-            else
-            {
-                craftingSpell.SetTargetTag(null);
-            }
-        }
-        else
-        {
-            //assume enchantment spells target player
-            craftingSpell.SetTargetTag("Player");
-        }
-
-        if (itemIndexInInventory >= 0)
-        {
-            //update existing item
-            Inventory.GetInstance().GetItem(itemIndexInInventory).SetSpell(craftingSpell);
-        }
-        else 
-        {
-            //add new one if this is a new card
-            Item newItem = new Item(title, 0, craftingSpell.ToString(), craftingSpell);
-            itemIndexInInventory = Inventory.GetInstance().AddItem(newItem);
-        }
 
 
-        
-
-        if (invComponent != null)
-        {
-            //card was in inventory and so has a component that can destroy it
-            invComponent.MoveToItemSlot();
-        }
-        else
-        {
-            //card was not in inventory, so it must destroy itself :(
-            InventoryItemComponent.crafting = false;
-            Destroy(gameObject);
-        }
-
-        Inventory.GetInstance().PopulateInventory();
+        //add item back to inventory
+        InventoryItemComponent.crafting = false;
+        Inventory.GetInstance().AddItem(craftingSpell);
+        Destroy(gameObject);
 
         return;
     }

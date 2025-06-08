@@ -20,7 +20,7 @@ public class ShopNodeComponent : MonoBehaviour
     private void PopulateText()
     {
        
-        goldText.text = node.value.ToString();
+        goldText.text = node.GetValue().ToString();
         nodeText.text = node.getText(node);
 
     }

@@ -17,38 +17,17 @@ public class Inventory : Singleton<Inventory>
     [SerializeField] private int maxInventorySize = 20;
 
     [SerializeField] private Item[] items;
-    [SerializeField] private SpellNode[] spellNodes;
     [SerializeField] private Deck deck;
 
     new private void Awake()
     {
         base.Awake();
         items = new Item[maxInventorySize];
-        spellNodes = new SpellNode[maxInventorySize];
         for (int i = 0; i < maxInventorySize; i++)
         {
             items[i] = null;
-            spellNodes[i] = null;
         }
         
-    }
-
-    public int AddNode(SpellNode node)
-    {
-        int addedIndex = -1;
-        for (int i = 0; i < spellNodes.Length; i++)
-        {
-            if (spellNodes[i] == null)
-            {
-                spellNodes[i] = node;
-                addedIndex = i;
-                break;
-            }
-        }
-
-        PopulateInventory();
-
-        return addedIndex;
     }
 
     public int AddItem(Item item)
@@ -70,26 +49,36 @@ public class Inventory : Singleton<Inventory>
         
         
     }
-    public void RemoveItem(int index)
+    public Item RemoveItem(Item item)
     {
-        items[index] = null;
-        PopulateInventory();
+        for(int i = 0; i < items.Length; i++)
+        {
+            if (items[i] == item)
+            {
+                Item removedItem = items[i];
+                items[i] = null;
+                PopulateInventory();
+                return removedItem;
+            }
+        }
+        return null;
     }
 
-    public void RemoveNode(int index)
+    public CustomizableSpell[] GetSpells()
     {
-        spellNodes[index] = null;
-        PopulateInventory();
+        List<CustomizableSpell> spells = new List<CustomizableSpell>();
+        foreach (Item item in items)
+        {
+            if (item is CustomizableSpell spell)
+            {
+                spells.Add(spell);
+            }
+        }
+        return spells.ToArray();
     }
-
     public Item[] GetItems()
     {
         return items;
-    }
-
-    public SpellNode[] GetSpellNodes()
-    {
-        return spellNodes;
     }
 
     public void AddGold(int amount)
@@ -157,16 +146,6 @@ public class Inventory : Singleton<Inventory>
         return -1;
     }
 
-    public SpellNode GetSpellNode(int index)
-    {
-        if (index < 0 || index >= spellNodes.Length)
-        {
-            Debug.LogError("Index out of bounds: " + index);
-            return null;
-        }
-        return spellNodes[index];
-    }
-
     public void PopulateInventory()
     {
         ShopManager.GetInstance().UpdateGoldText();
@@ -185,13 +164,16 @@ public class Inventory : Singleton<Inventory>
         {
             if(items[i] != null)
             {
-                GameObject g = Instantiate(inventoryItemPrefab, contentParent.transform);
-                g.GetComponent<InventoryItemComponent>().SetItem(i);
-            }
-            if (spellNodes[i] != null)
-            {
-                GameObject g = Instantiate(inventoryNodePrefab, nodeContentParent.transform);
-                g.GetComponent<InventoryNodeComponent>().SetNode(i);
+                if (items[i] is CustomizableSpell cs)
+                {
+                    GameObject g = Instantiate(inventoryItemPrefab, contentParent.transform);
+                    g.GetComponent<InventoryItemComponent>().SetItem(cs);
+                }else if (items[i] is SpellNode sn)
+                {
+                    GameObject g = Instantiate(inventoryNodePrefab, nodeContentParent.transform);
+                    g.GetComponent<InventoryNodeComponent>().SetNode(sn);
+                }
+
             }
 
         }

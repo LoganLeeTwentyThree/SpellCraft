@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Deck : MonoBehaviour
 {
-    [SerializeField] private Queue<Item> cards = new();
+    [SerializeField] private Queue<CustomizableSpell> cards = new();
 
     public void CreateDeck()
     {
-        Item[] items = Inventory.GetInstance().GetItems();
+        CustomizableSpell[] items = Inventory.GetInstance().GetSpells();
         for (int i = 0; i < items.Length; i++)
         {
             if (items[i] == null) continue;
@@ -17,19 +17,19 @@ public class Deck : MonoBehaviour
         }
     }
     public int Count => cards.Count;
-    public Item DrawCard()
+    public CustomizableSpell DrawCard()
     {
         if (cards.Count == 0) return null;
         return cards.Dequeue();
     }
-    public void AddCard(Item card)
+    public void AddCard(CustomizableSpell card)
     {
         cards.Enqueue(card);
     }
 
     public void Shuffle()
     {
-        List<Item> cardList = new List<Item>(cards);
+        List<CustomizableSpell> cardList = new List<CustomizableSpell>(cards);
         cards.Clear();
         while (cardList.Count > 0)
         {

@@ -25,7 +25,7 @@ public class HandManager : Singleton<HandManager>
     {
         if (handCards.Count >= maxHandSize) return;
         if (deck.Count == 0) return;
-        Item item = deck.DrawCard();
+        CustomizableSpell item = deck.DrawCard();
         GameObject g = Instantiate(cardPrefab, spawnPoint.position, spawnPoint.rotation);
         g.GetComponent<ItemComponent>().SetItem(item);
         handCards.Add(g);

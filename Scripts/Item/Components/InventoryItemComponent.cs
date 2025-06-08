@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class InventoryItemComponent : MonoBehaviour
 {
-    [SerializeField] private int itemIndexInInventory;
+    [SerializeField] private CustomizableSpell item;
     [SerializeField] private GameObject craftPrefab;
     [SerializeField] private Button button;
     public static bool crafting = false;
@@ -18,10 +18,10 @@ public class InventoryItemComponent : MonoBehaviour
     {
         baseColor = GetComponent<Image>().color;
     }
-    public void SetItem(int index)
+    public void SetItem(CustomizableSpell item)
     {
-        itemIndexInInventory = index;
-        button.GetComponentInChildren<TextMeshProUGUI>().text = Inventory.GetInstance().GetItem(index).GetItemName();
+        this.item = item;
+        button.GetComponentInChildren<TextMeshProUGUI>().text = item.GetItemName();
         
     }
     public void MoveToItemSlot()
@@ -52,10 +52,13 @@ public class InventoryItemComponent : MonoBehaviour
             });
 
 
-            craftingItem.GetComponent<ItemComponent>().SetItem(itemIndexInInventory);
-            craftingItem.GetComponent<CraftCard>().SetInvComponent(this);
-            craftingItem.GetComponentInChildren<TMP_InputField>().text = Inventory.GetInstance().GetItem(itemIndexInInventory).GetItemName();
+            craftingItem.GetComponent<ItemComponent>().SetItem(item);
+            craftingItem.GetComponent<CraftCard>().SetSpell(item);
+            craftingItem.GetComponentInChildren<TMP_InputField>().text = item.GetItemName();
             crafting = true;
+
+            Inventory.GetInstance().RemoveItem(item);
+            Destroy(gameObject); 
         }
         else
         {

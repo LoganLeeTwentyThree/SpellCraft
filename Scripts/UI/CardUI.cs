@@ -21,7 +21,7 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
     {
         cardEffect = GetComponent<ItemComponent>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        if (cardEffect.GetItem().GetSpell().GetSpellType() == CustomizableSpell.SpellType.ENCHANTMENT)
+        if (cardEffect.GetItem().GetSpellType() == CustomizableSpell.SpellType.ENCHANTMENT)
         {
             GetComponent<SpriteRenderer>().color = new Color(0.5f, 1f, 0.5f); //green color for enchantments
         }else
@@ -51,8 +51,9 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
         {
             if (cardEffect != null)
             {
-                cardEffect.Use(); //use the card effect
-                Destroy(gameObject); //destroy the card UI
+                HandManager.GetInstance().RemoveCard(this.gameObject); 
+                cardEffect.Use(); 
+                Destroy(gameObject); 
             }
         }
         transform.position = startPos; 
@@ -63,7 +64,7 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
         startPos = transform.position;
-        startRot = transform.rotation; //store the original rotation
+        startRot = transform.rotation; 
     }
 
 

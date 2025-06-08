@@ -52,9 +52,9 @@ namespace NodeDelegates
         {
             EventManager.GetInstance().Popped.AddListener((GameAction action) =>
             {
-                if (action.GetActionType() == GameAction.ActionType.HEAL)
+                if (action.GetActionType() == GameAction.ActionType.HEAL && action is TargetedAction ta)
                 {
-                    if (sc != null && sc.gameObject != null) sc.Trigger(n);
+                    if (sc != null && sc.gameObject != null && ta.GetTarget() == sc.gameObject.GetComponent<Character>()) sc.Trigger(n);
                 }
             });
         };

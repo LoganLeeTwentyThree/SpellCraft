@@ -71,6 +71,11 @@ public class TargetedAction : GameAction
     {
         target = c;
     }
+
+    public Character GetTarget()
+    {
+        return target;
+    }
     override public void Resolve(GameAction self)
     {
         if (target == null)
