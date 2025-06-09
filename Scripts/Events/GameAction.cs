@@ -4,15 +4,13 @@ using UnityEngine;
 
 public abstract class GameAction
 {
-    public enum ActionType { DRAW, DAMAGE, DIE, ATTACK, HEAL, ALTER, TURN, GOLD };
+    public enum ActionType { DRAW, DIE, ATTACK, HEAL, ALTER, TURN, GOLD, DAMAGE };
     protected ActionType type;
     protected string source;
 
     public delegate int ApplyMultiplier(int multiplier, GameAction self);
     public ApplyMultiplier applyMultiplier;
-
     public Dictionary<string, object> parameters;// a list of paramaters that an action has access to if it needs to track local state
-
     public GameAction(ActionType n_type, ApplyMultiplier applyMultiplier, Dictionary<string, object> pairs)
     {
         parameters = pairs;
@@ -32,6 +30,11 @@ public abstract class GameAction
     public ActionType GetActionType()
     {
         return type;
+    }
+
+    public void SetActionType(ActionType n_type)
+    {
+        type = n_type;
     }
 
     public void SetSource(string n_source)

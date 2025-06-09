@@ -22,6 +22,14 @@ public class CraftCard : MonoBehaviour
 
     }
 
+    public SpellNode GetPreviousNode(SpellNode node)
+    {
+        if (last == 0 || node == null) return null;
+        int index = Array.IndexOf(nodeArr, node);
+        if (index <= 0) return null; // no previous node
+        return nodeArr[index - 1];
+    }
+
     public SpellNode GetLast()
     {
         if(last == 0)
@@ -243,43 +251,27 @@ public class CraftCard : MonoBehaviour
                 craftingSpell.Add(sn);
             }
         }
-
-        if ( craftingSpell.GetSpellType() == CustomizableSpell.SpellType.BURST)
+        
+        //attach to friendly character
+        craftingSpell.SetCastBehavior(() =>
         {
-            craftingSpell.SetCastBehavior(() =>
+            TargetingManager.GetInstance().ShowTargets((Character c) =>
             {
-                //burst spell
-                SpellComponent sc = Camera.main.gameObject.AddComponent<SpellComponent>();// put it on the camera idk lol
+                SpellComponent sc = c.gameObject.AddComponent<SpellComponent>();
+                GameObject castParticles = Resources.Load<GameObject>("CastEffect");
+                ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
+                c.StartCoroutine(ps.SpawnParticles(castParticles, c.transform.position, Quaternion.identity, 1));
+
+                c.StartCoroutine(c.Jump(1));
                 sc.SetSpell(craftingSpell);
-                sc.Trigger(craftingSpell.array[0], true); // execute the first node in the spell array
-            });
-        }
-        else
-        {
-            //enchantment spell
-            craftingSpell.SetCastBehavior(() =>
-            {
-                TargetingManager.GetInstance().ShowTargets((Character c) =>
-                {
-                    SpellComponent sc = c.gameObject.AddComponent<SpellComponent>();
-                    //enchantment spell (target implied)
-                    GameObject castParticles = Resources.Load<GameObject>("CastEffect");
-                    ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
-                    c.StartCoroutine(ps.SpawnParticles(castParticles, c.transform.position, Quaternion.identity, 1));
+                TargetingManager.GetInstance().HideTargets();
 
-                    c.StartCoroutine(c.Jump(1));
-                    sc.SetSpell(craftingSpell);
-                    TargetingManager.GetInstance().HideTargets();
+                BattleManager.GetInstance().ChangePhase();
 
-                }, NodeDelegates.Targeting.allyTarget);
-
-
-            });
+            }, NodeDelegates.Targeting.allyTarget);
+        });
             
-        }
-
         SoundManager.GetInstance().PlaySound("CraftItem");
-
 
         //add item back to inventory
         InventoryItemComponent.crafting = false;

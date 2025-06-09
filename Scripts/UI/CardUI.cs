@@ -51,8 +51,8 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
         {
             if (cardEffect != null)
             {
-                HandManager.GetInstance().RemoveCard(this.gameObject); 
-                cardEffect.Use(); 
+                HandManager.GetInstance().RemoveCard(gameObject); 
+                cardEffect.Use();
                 Destroy(gameObject); 
             }
         }

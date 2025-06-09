@@ -42,11 +42,11 @@ public class SpellComponent : MonoBehaviour
         return spell;
     }
 
-    public void Trigger(SpellNode node, bool first = false)
+    public void Trigger(SpellNode node, bool first = false, bool attack = false)
     {
         if(first && node is ConjunctionNode cn_)
         {
-            cn_.Execute(gameObject.name + " uses " + spell.GetItemName());
+            cn_.Execute(gameObject.name);
             return;
         }
 
@@ -62,28 +62,22 @@ public class SpellComponent : MonoBehaviour
             indexToExecute = System.Array.IndexOf(spell.array, node);
         }
 
-
+        //turn action into attack if applicable
         if (spell.array[indexToExecute] is ActionNode an)
         {
-            an.Execute(gameObject.name + " uses " + spell.GetItemName());
+            if(attack && an.action.GetActionType() == GameAction.ActionType.DAMAGE)
+            {
+                an.action.SetActionType(GameAction.ActionType.ATTACK);
+            }
+            an.Execute(gameObject.name);
         }
         else if (spell.array[indexToExecute] is ConjunctionNode cn)
         {
-            cn.Execute(gameObject.name + " uses " + spell.GetItemName());
+            cn.Execute(gameObject.name);
         }
-                    
-                
+
         
-
-        if(spell.GetSpellType() == CustomizableSpell.SpellType.BURST && node == spell.array[spell.array.Length - 1])
-        {
-            //if the spell is a burst, destroy the component after fully resolving
-            Destroy(this);
-        }
     }
-
-
-    
     public void OnMouseEnter()
     {
         if (text == null) return;
@@ -95,7 +89,6 @@ public class SpellComponent : MonoBehaviour
         text.text += spell.GetItemName() + "\n";
 
     }
-
     public void OnMouseExit()
     {
         if (text == null) return;
@@ -104,12 +97,6 @@ public class SpellComponent : MonoBehaviour
             text.gameObject.SetActive(false);
         }
         text.text = "Equipped: \n";
-    }
-
-    private void OnDestroy()
-    {
-        
-        
     }
 
 

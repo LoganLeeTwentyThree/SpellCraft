@@ -7,10 +7,7 @@ public class GameManager : Singleton<GameManager>
 {
     [SerializeField] private GameObject[] managerObjs;
     private Dictionary<string, GameObject> managers = new();
-
     private int fights = 1;
-
-    
     public enum GameState { BUY, FIGHT, CRAFT }
     private GameState currentGameState;
 

@@ -17,7 +17,7 @@ public class EventManager : Singleton<EventManager>
 
     [SerializeField] private GameObject stackPrefab;
     private Stack<GameObject> stackObjs = new();
-    private Vector2 topPos = new Vector2(-370, -200);
+    private Vector2 topPos = new Vector2(-370, -140);
     [SerializeField]private GameObject canvas;
     private int poppedThisPhase = 0;
     private bool isResolving = false;
@@ -56,7 +56,7 @@ public class EventManager : Singleton<EventManager>
             Destroy(obj);
         }
         stackObjs.Clear();
-        topPos = new Vector2(-370, -200);
+        topPos = new Vector2(-370, -140);
     }
 
     //Pushes a new action to the stack
@@ -72,7 +72,7 @@ public class EventManager : Singleton<EventManager>
         Pushed.Invoke(toPush);
         UpdateStackUI(toPush);
 
-        if (!isResolving)
+        if (!isResolving && isActiveAndEnabled)
         {
             StartCoroutine(ResolveStack()); //start resolving the stack if it's not already resolving
         }
@@ -122,6 +122,7 @@ public class EventManager : Singleton<EventManager>
     //Instantiates stack UI elements.
     private void UpdateStackUI(GameAction action)
     {
+        //TODO: fix bug that causes the stack to not update properly when not empty
         //if the stack contains the action, it was just pushed, otherwise it was just popped
         if(stack.Contains(action))
         {
@@ -131,7 +132,7 @@ public class EventManager : Singleton<EventManager>
         else
         {
             //pop logic
-            if(stackObjs.Count == 0) return; //no objects to pop
+            if(stackObjs.Count == 0) return; 
             GameObject obj = stackObjs.Pop();
             if (isActiveAndEnabled) StartCoroutine(DestroyStackObj(obj));
             topPos.y -= 50;
@@ -160,7 +161,7 @@ public class EventManager : Singleton<EventManager>
     {
         GameObject obj = Instantiate(stackPrefab, topPos + Vector2.left * 500, Quaternion.identity);
         obj.transform.SetParent(canvas.transform, false);
-        obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetActionType() == GameAction.ActionType.ATTACK ? action.GetSource() + " " + action.GetActionType() + "s!" : action.GetSource() + "!";
+        obj.GetComponentInChildren<TextMeshProUGUI>().text = action.GetSource() + action.GetActionType() + "s!";
         obj.transform.DOMoveX(obj.transform.position.x + 500, 0.25f).SetEase(Ease.InQuad);
         stackObjs.Push(obj);
         topPos.y += 50;

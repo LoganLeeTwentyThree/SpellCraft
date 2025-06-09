@@ -29,7 +29,6 @@ public class Inventory : Singleton<Inventory>
         }
         
     }
-
     public int AddItem(Item item)
     {
         int addedIndex = -1;

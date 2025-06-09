@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using ParticleSpawner;
+using UnityEditor.Experimental.GraphView;
 
 public abstract class Character : MonoBehaviour
 {
@@ -18,6 +19,9 @@ public abstract class Character : MonoBehaviour
     protected TMPro.TextMeshProUGUI healthText;
     protected GameManager gameManager;
 
+    protected bool exhausted = false;
+    protected int exhaustRounds = 0;
+
     protected int damage = 1;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     protected void Start()
@@ -28,6 +32,8 @@ public abstract class Character : MonoBehaviour
         healthBar.maxValue = health;
         healthBar.value = health;
         healthText.text = health.ToString() + "/" + maxHealth.ToString();
+
+        
     }
 
     
@@ -121,9 +127,25 @@ public abstract class Character : MonoBehaviour
     {
         return maxHealth;
     }
+    public void Exhaust(int rounds = 1)
+    {
+        exhaustRounds = rounds;
+        exhausted = true;
+        GetComponent<SpriteRenderer>().color = Color.gray;
+    }
+
+    public void UnExhaust()
+    {
+        exhausted = false;
+        GetComponent<SpriteRenderer>().color = Color.white;
+    }
+
+    public bool IsExhausted()
+    {
+        return exhausted;
+    }
 
     public abstract void Attack();
     public abstract void Die();
-    public abstract void Exhaust(int rounds);
-    public abstract void UnExhaust();
+    
 }

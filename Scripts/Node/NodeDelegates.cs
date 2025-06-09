@@ -1,10 +1,23 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 
 namespace NodeDelegates
 {
     public static class Targeting
     {
+        public static TargetedAction.TargetTagGenerater exhaustedTarget = () =>
+        {
+            foreach( PlayerCharacter pc in BattleManager.GetInstance().GetPlayers())
+            {
+                if (pc.IsExhausted())
+                {
+                    pc.gameObject.tag = "Target";
+                }
+            }
+            return;
+        };
+
         public static TargetedAction.TargetTagGenerater enemyTarget = () =>
         {
             BattleManager.GetInstance().GetEnemy().gameObject.tag = "Target";
@@ -37,6 +50,21 @@ namespace NodeDelegates
 
     public static class Triggers
     {
+
+        public static TriggerNode.Listen damageTrigger = (SpellComponent sc, SpellNode n) =>
+        {
+            EventManager.GetInstance().Popped.AddListener((GameAction action) =>
+            {
+                if (action.GetActionType() == GameAction.ActionType.DAMAGE && action is TargetedAction ta)
+                {
+                    if (sc != null && sc.gameObject != null && ta.GetTarget() == sc.gameObject.GetComponent<Character>())
+                    {
+                        sc.Trigger(n);
+                    }
+                }
+            });
+        };
+
         public static TriggerNode.Listen attackTrigger = (SpellComponent sc, SpellNode n) =>
         {
             EventManager.GetInstance().Popped.AddListener((GameAction action) =>

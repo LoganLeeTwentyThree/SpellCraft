@@ -4,7 +4,7 @@ using NodeDelegates;
 public class SpellFactory
 {
     private List<CustomizableSpell> spells = new();
-    private TargetedAction deal1 = new TargetedAction(GameAction.ActionType.DAMAGE, Targeting.enemyTarget,
+    private TargetedAction deal1 = new TargetedAction(GameAction.ActionType.ATTACK, Targeting.enemyTarget,
             (Character c, GameAction self) => {
                 //effect logic
                 object damage;

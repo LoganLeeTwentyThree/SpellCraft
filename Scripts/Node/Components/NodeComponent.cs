@@ -53,15 +53,15 @@ public class NodeComponent : MonoBehaviour, IPointerDownHandler
         CraftCard cc = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
 
         //apply multipliers to non trigger nodes
-        if (cc.GetLast() is ConjunctionNode && node is not TriggerNode)
+        if ( cc.GetPreviousNode(node) is ConjunctionNode && node is not TriggerNode )
         {
             if (node is ActionNode an)
             {
-                an.action.applyMultiplier((int)((ConjunctionNode)cc.GetLast()).action.parameters["mult"], an.action);
+                an.action.applyMultiplier((int)((ConjunctionNode)cc.GetPreviousNode(node)).action.parameters["mult"], an.action);
             }
             else if (node is ConjunctionNode cn)
             {
-                cn.action.applyMultiplier((int)((ConjunctionNode)cc.GetLast()).action.parameters["mult"], cn.action);
+                cn.action.applyMultiplier((int)((ConjunctionNode)cc.GetPreviousNode(node)).action.parameters["mult"], cn.action);
             }
 
         }

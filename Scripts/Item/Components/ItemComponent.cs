@@ -71,7 +71,6 @@ public class ItemComponent : MonoBehaviour
         if (item != null)
         {
             item.cast();
-            BattleManager.GetInstance().ChangePhase();
         }
     }
 
