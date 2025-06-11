@@ -284,7 +284,6 @@ GameObject:
   - component: {fileID: 5246405731450162425}
   - component: {fileID: 84065885084996285}
   - component: {fileID: 2132467134638068225}
-  - component: {fileID: 5891678733642366638}
   - component: {fileID: 3297290074133165067}
   - component: {fileID: -8273741183576650964}
   m_Layer: 5
@@ -495,22 +494,6 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
---- !u!114 &5891678733642366638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2218627508199963333}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9d15238fec31e04dba3abc0732533fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enabledTurn: 1
-  enabledPhase: 1
-  usePhase: 1
-  enabledState: 0
 --- !u!114 &3297290074133165067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -523,7 +506,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03dfe8861111fd4499ff3bb26d738743, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemIndexInInventory: 0
   goldText: {fileID: 0}
   itemNameText: {fileID: 1615957661833931105}
   itemDescriptionText: {fileID: 4616331806584501740}

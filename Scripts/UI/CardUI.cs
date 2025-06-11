@@ -5,28 +5,30 @@ using UnityEngine.UI;
 using Unity.VisualScripting;
 using UnityEngine.Rendering.Universal;
 
-public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
+public class CardUI : MonoBehaviour, IDragHandler
 {
     [SerializeField]
     private TextMeshProUGUI bodyText;
     [SerializeField]
     private TextMeshProUGUI titleText;
     private ItemComponent cardEffect;
-    private Vector2 startPos;
-    private Quaternion startRot;
     private SpriteRenderer spriteRenderer;
-    //Targeting Line
+    private Color baseColor;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        
         cardEffect = GetComponent<ItemComponent>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (cardEffect.GetItem().GetSpellType() == CustomizableSpell.SpellType.ENCHANTMENT)
         {
-            GetComponent<SpriteRenderer>().color = new Color(0.5f, 1f, 0.5f); //green color for enchantments
-        }else
+            baseColor = new Color(0.5f, 1f, 0.5f); //green color for enchantments
+            GetComponent<SpriteRenderer>().color = baseColor;
+        }
+        else
         {
-            GetComponent<SpriteRenderer>().color = new Color(1f, 0.5f, 0.5f); //red color for burst spells
+            baseColor = new Color(1f, 0.5f, 0.5f); //red color for burst spells
+            GetComponent<SpriteRenderer>().color = baseColor;
         }
 
     }
@@ -34,41 +36,28 @@ public class CardUI : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDo
     void IDragHandler.OnDrag(PointerEventData eventData)
     {
         transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition) + Vector3.forward * 10;
-        transform.rotation = Quaternion.identity;
-        if( transform.position.y > -2)
+        if( transform.position.y > 17)
         {
-            spriteRenderer.color = new Color(1f, 1f, 1f, 0.5f); //make the card semi-transparent when above the hand
+            spriteRenderer.color = new Color(baseColor.r, baseColor.g , baseColor.b, 0.5f); //make the card semi-transparent when above the hand
         }
         else
         {
-            spriteRenderer.color = new Color(1f, 1f, 1f, 1f); //make the card fully opaque when in the hand
+            spriteRenderer.color = baseColor; //make the card fully opaque when in the hand
         }
     }
 
-    void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
+    private void OnMouseUp()
     {
-        if(transform.position.y > -2) //if the card is above the hand
+        if (transform.position.y > 17)
         {
+            Debug.Log(cardEffect);
             if (cardEffect != null)
             {
-                HandManager.GetInstance().RemoveCard(gameObject); 
                 cardEffect.Use();
-                Destroy(gameObject); 
+                Destroy(gameObject);
             }
         }
-        transform.position = startPos; 
-        transform.rotation = startRot;
-        spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+        spriteRenderer.color = baseColor;
     }
-
-    void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
-    {
-        startPos = transform.position;
-        startRot = transform.rotation; 
-    }
-
-
-
-
 
 }

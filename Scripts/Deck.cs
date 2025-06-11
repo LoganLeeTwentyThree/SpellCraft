@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class Deck : MonoBehaviour
+public class Deck
 {
     [SerializeField] private Queue<CustomizableSpell> cards = new();
 
-    public void CreateDeck()
+    public Deck()
     {
         CustomizableSpell[] items = Inventory.GetInstance().GetSpells();
         for (int i = 0; i < items.Length; i++)

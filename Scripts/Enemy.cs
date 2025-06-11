@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Enemy : Character
@@ -22,7 +20,8 @@ public class Enemy : Character
 
     private IEnumerator DoTurn(BattleManager.Phase phase)
     {
-        if(BattleManager.GetInstance().GetTurn() != BattleManager.Turn.ENEMY)
+        BattleManager bm = BattleManager.GetInstance();
+        if (bm.GetTurn() != BattleManager.Turn.ENEMY)
         {
             yield break; //if it's not the enemy's turn, do nothing
         }
@@ -31,28 +30,29 @@ public class Enemy : Character
         yield return new WaitForSeconds(.5f);
         if (phase == BattleManager.Phase.START)
         {
-            BattleManager.GetInstance().ChangePhase();
-        }
-        else if (phase == BattleManager.Phase.PLAY)
-        {
-            BattleManager.GetInstance().ChangePhase();
+            bm.ChangePhase();
         }
         else if (phase == BattleManager.Phase.ATTACK)
         {
             Attack();
-            yield return new WaitForSeconds(.25f);
-            BattleManager.GetInstance().ChangePhase();
         }
         else if (phase == BattleManager.Phase.END)
         {
-            BattleManager.GetInstance().ChangePhase();
+            bm.ChangePhase();
         }
     }
 
     public override void Attack()
     {
-        SoundManager.GetInstance().PlaySound("Attack");
-        BattleManager.GetInstance().GetRandomPlayer().GetComponent<PlayerCharacter>().ChangeHealth(-damage);
+        
+        UntargetedAction newDamageEvent = new UntargetedAction(GameAction.ActionType.ATTACK,
+        (GameAction self) => {
+            GameManager.GetInstance().GetRandomPlayer().ChangeHealth(-damage);
+            SoundManager.GetInstance().PlaySound("Attack");
+            BattleManager.GetInstance().ChangePhase();
+        });
+        newDamageEvent.SetSource(gameObject.name);
+        EventManager.GetInstance().Push(newDamageEvent);
     }
 
     override public void Die()

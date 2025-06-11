@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using NodeDelegates;
+using CommonBehavior;
 public class SpellFactory
 {
     private List<CustomizableSpell> spells = new();

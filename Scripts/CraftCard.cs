@@ -252,23 +252,9 @@ public class CraftCard : MonoBehaviour
             }
         }
         
-        //attach to friendly character
         craftingSpell.SetCastBehavior(() =>
         {
-            TargetingManager.GetInstance().ShowTargets((Character c) =>
-            {
-                SpellComponent sc = c.gameObject.AddComponent<SpellComponent>();
-                GameObject castParticles = Resources.Load<GameObject>("CastEffect");
-                ParticleSpawner.ParticleSpawner ps = new ParticleSpawner.ParticleSpawner();
-                c.StartCoroutine(ps.SpawnParticles(castParticles, c.transform.position, Quaternion.identity, 1));
-
-                c.StartCoroutine(c.Jump(1));
-                sc.SetSpell(craftingSpell);
-                TargetingManager.GetInstance().HideTargets();
-
-                BattleManager.GetInstance().ChangePhase();
-
-            }, NodeDelegates.Targeting.allyTarget);
+            CommonBehavior.CastBehavior.StandardCast(craftingSpell);
         });
             
         SoundManager.GetInstance().PlaySound("CraftItem");

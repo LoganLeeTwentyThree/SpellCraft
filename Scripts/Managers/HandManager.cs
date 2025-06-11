@@ -14,13 +14,6 @@ public class HandManager : Singleton<HandManager>
     [SerializeField] private Transform spawnPoint;
     [SerializeField] private Deck deck;
     public List<GameObject> handCards = new();
-    private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.E))
-        {
-            DrawCard();
-        }
-    }
     public void DrawCard()
     {
         if (handCards.Count >= maxHandSize) return;
@@ -52,18 +45,9 @@ public class HandManager : Singleton<HandManager>
             Quaternion rotation = Quaternion.LookRotation(up, Vector3.Cross(up, forward).normalized);
             handCards[i].transform.DOMove(splinePosition, 0.25f);
             handCards[i].transform.DOLocalRotateQuaternion(rotation, 0.25f);
-            handCards[i].GetComponent<ItemComponent>().SetOriginalPosition(splinePosition);
         }
     }
 
-    public override void Populate()
-    {
-        deck.CreateDeck();
-        for( int i = 0; i < 3; i++)
-        {
-            DrawCard();
-        }
-    }
 
 
 }

@@ -1,39 +1,38 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 //attached to a character when a spell is cast on them 
 public class SpellComponent : MonoBehaviour
 {
-    [SerializeField] private CustomizableSpell spell;
-    private TMPro.TextMeshProUGUI text;
-    void Start()
-    {
-        if(spell.GetSpellType() == CustomizableSpell.SpellType.ENCHANTMENT)
-        {
-            text = transform.Find("Canvas").transform.Find("ItemText").GetComponent<TMPro.TextMeshProUGUI>();
-        }
-        
-        GameManager.GetInstance().GameStateChanged.AddListener((GameManager.GameState state) =>
-        {
-            Destroy(this);
-        });
-    }
-
+    private CustomizableSpell spell;
     public void SetSpell(CustomizableSpell spell)
     {
         this.spell = spell;
-        foreach (SpellNode node in spell.array)
-        {
-            if (node is TriggerNode triggerNode)
-            {
-                // calls the listener method on each trigger node so that they start listening
-                triggerNode.listener(this, node);
-            }
+        GameManager.GetInstance().GameStateChanged.AddListener(ToggleListen);
+    }
 
-            if (node is ConjunctionNode conNode)
+    private void ToggleListen(GameManager.GameState state)
+    {
+        if (state == GameManager.GameState.FIGHT)
+        {
+            foreach (SpellNode node in spell.array)
             {
-                //sets the spell component in each conjuction node
-                conNode.sc = this;
+                if (node is TriggerNode triggerNode)
+                {
+                    // calls the listener method on each trigger node so that they start listening
+                    triggerNode.listener(this, node);
+                }
+
+                if (node is ConjunctionNode conNode)
+                {
+                    //sets the spell component in each conjuction node
+                    conNode.sc = this;
+                }
             }
+        }
+        else
+        {
+            GameManager.GetInstance().GameStateChanged.RemoveListener(ToggleListen);
         }
     }
 
@@ -77,26 +76,6 @@ public class SpellComponent : MonoBehaviour
         }
 
         
-    }
-    public void OnMouseEnter()
-    {
-        if (text == null) return;
-        if (text.isActiveAndEnabled == false)
-        {
-            text.gameObject.SetActive(true);
-        }
-
-        text.text += spell.GetItemName() + "\n";
-
-    }
-    public void OnMouseExit()
-    {
-        if (text == null) return;
-        if (text.isActiveAndEnabled == true)
-        {
-            text.gameObject.SetActive(false);
-        }
-        text.text = "Equipped: \n";
     }
 
 

@@ -2,13 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class GameManager : Singleton<GameManager>
 {
     [SerializeField] private GameObject[] managerObjs;
+    [SerializeField] private PlayerCharacter[] players;
+    [SerializeField] private GameObject inventoryObj;
     private Dictionary<string, GameObject> managers = new();
     private int fights = 1;
-    public enum GameState { BUY, FIGHT, CRAFT }
+    public enum GameState { BUY, FIGHT, CRAFT, PREPARE }
     private GameState currentGameState;
 
     public UnityEvent<GameState> GameStateChanged = new();
@@ -23,7 +26,7 @@ public class GameManager : Singleton<GameManager>
 
     private void Start()
     {
-        SetGameState(GameState.BUY);
+        SetGameState(GameState.PREPARE);
     }
 
     private void ToggleManager(string name)
@@ -62,6 +65,7 @@ public class GameManager : Singleton<GameManager>
             ToggleManager("BattleManager");
             currentGameState = GameState.FIGHT;
             SoundManager.GetInstance().PlaySound("EnterFight");
+            MovePlayers(new Vector2(0, -1.65f));
         }
         else if (state == GameState.CRAFT)
         {
@@ -69,6 +73,15 @@ public class GameManager : Singleton<GameManager>
             ToggleManager("CraftCanvas");
             currentGameState = GameState.CRAFT;
             SoundManager.GetInstance().PlaySound("EnterCraft");
+        }else if (state == GameState.PREPARE)
+        {
+            Camera.main.transform.position = new Vector3(-20, 20, -10);
+            ToggleManager("PrepareCanvas");
+            currentGameState = GameState.PREPARE;
+            inventoryObj.GetComponent<RectTransform>().SetParent(managers["PrepareCanvas"].transform);
+            MovePlayers(new Vector2(-20, 20));
+
+
         }
         GameStateChanged.Invoke(state);
     }
@@ -107,9 +120,34 @@ public class GameManager : Singleton<GameManager>
         SetGameState(GameState.CRAFT);
     }
 
-    public override void Populate()
+    public void EnterPrepare()
     {
-        return;
+        SetGameState(GameState.PREPARE);
     }
+
+    public PlayerCharacter[] GetPlayers()
+    {
+        return players;
+    }
+
+    public PlayerCharacter GetRandomPlayer()
+    {
+        PlayerCharacter[] playerList = GetPlayers();
+        int randomIndex = Random.Range(0, playerList.Length);
+        while (playerList[randomIndex] == null)
+        {
+            randomIndex = Random.Range(0, playerList.Length);
+        }
+        return playerList[randomIndex];
+    }
+
+    private void MovePlayers(Vector2 center)
+    {
+        players[0].transform.position = center + new Vector2(-3f, 0);
+        players[1].transform.position = center;
+        players[2].transform.position = center + new Vector2(3f, 0);
+
+    }
+
 
 }

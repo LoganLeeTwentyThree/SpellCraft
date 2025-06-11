@@ -16,16 +16,9 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    protected void OnEnable()
-    {
-        
-        Populate();
-    }
-
     public static T GetInstance()
     {
         return instance;
     }
 
-    public abstract void Populate();
 }

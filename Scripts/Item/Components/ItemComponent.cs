@@ -10,7 +10,6 @@ public class ItemComponent : MonoBehaviour
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI itemNameText;
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
-    public Vector2 originalPosition;
 
 
     private void Start()
@@ -72,21 +71,6 @@ public class ItemComponent : MonoBehaviour
         {
             item.cast();
         }
-    }
-
-    public void SetOriginalPosition(Vector2 position)
-    {
-        originalPosition = position;
-    }
-
-    private void OnMouseEnter()
-    {
-        transform.DOLocalMoveY(transform.localPosition.y + 0.2f, 0.2f).SetEase(Ease.OutQuad);
-    }
-
-    private void OnMouseExit()
-    {
-        transform.DOLocalMove(originalPosition, 0.2f).SetEase(Ease.OutQuad);
     }
 
 }

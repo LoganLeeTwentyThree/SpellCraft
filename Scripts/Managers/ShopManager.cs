@@ -23,7 +23,7 @@ public class ShopManager : Singleton<ShopManager>
         UpdateGoldText();
     }
 
-    override public void Populate()
+    public void OnEnable()
     {
         buyCanvas.SetActive(true);
         inventoryObj.transform.SetParent(transform);
@@ -58,7 +58,7 @@ public class ShopManager : Singleton<ShopManager>
             }
             inv.RemoveGold(5);
             UpdateGoldText();
-            Populate();
+            OnEnable();
         }
     }
 
@@ -72,7 +72,7 @@ public class ShopManager : Singleton<ShopManager>
             inventory.RemoveGold(itemComponent.GetItem().GetValue());
             Destroy(itemComponent.gameObject);
             UpdateGoldText();
-            Populate();
+            OnEnable();
         }
     }
 
@@ -85,7 +85,7 @@ public class ShopManager : Singleton<ShopManager>
             inventory.RemoveGold(nodeComponent.GetNode().GetValue());
             nodeComponent.StartCoroutine(nodeComponent.BuyAnimation());
             UpdateGoldText();
-            Populate();
+            OnEnable();
         }
     }
 

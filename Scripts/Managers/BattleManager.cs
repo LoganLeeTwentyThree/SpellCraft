@@ -14,7 +14,7 @@ public class BattleManager : Singleton<BattleManager>
     public UnityEvent<Turn> TurnChanged = new();
 
     //Phase enum used for keeping track of the phases in each turn
-    public enum Phase { START, PLAY, ATTACK, END };
+    public enum Phase { START, ATTACK, END };
     private Phase CurrentPhase = Phase.START;
     public UnityEvent<Phase> PhaseChanged = new();
 
@@ -23,8 +23,7 @@ public class BattleManager : Singleton<BattleManager>
     [SerializeField]
     private GameObject enemyPrefab;
     private Enemy enemy;
-    [SerializeField]
-    private PlayerCharacter[] players;
+    
 
     //Text fields (May change)
     [SerializeField]
@@ -74,10 +73,6 @@ public class BattleManager : Singleton<BattleManager>
         if(CurrentPhase != Phase.END)
         {
             CurrentPhase++;
-            if(CurrentTurn == Turn.PLAYER && HandManager.GetInstance().handCards.Count == 0 && CurrentPhase == Phase.PLAY)
-            {
-                CurrentPhase++;
-            }
             PhaseChanged.Invoke(CurrentPhase);
         }
         else
@@ -97,9 +92,6 @@ public class BattleManager : Singleton<BattleManager>
             if(CurrentPhase == Phase.START)
             {
                 eventText.text = "The Enemy Readys...";
-            }else if (CurrentPhase == Phase.PLAY)
-            {
-                eventText.text = "The Enemy Considers Its Options...";
             }else if (CurrentPhase == Phase.ATTACK)
             {
                 eventText.text = "The Enemy Strikes!";
@@ -113,10 +105,6 @@ public class BattleManager : Singleton<BattleManager>
             if (CurrentPhase == Phase.START)
             {
                 eventText.text = "Begin Round!";
-            }
-            else if (CurrentPhase == Phase.PLAY)
-            {
-                eventText.text = "Play Cards!";
             }
             else if (CurrentPhase == Phase.ATTACK)
             {
@@ -156,21 +144,7 @@ public class BattleManager : Singleton<BattleManager>
         return enemy;
     }
 
-    public PlayerCharacter[] GetPlayers()
-    {
-        return players;
-    }
-
-    public PlayerCharacter GetRandomPlayer()
-    {
-        PlayerCharacter[] playerList = GetPlayers();
-        int randomIndex = Random.Range(0, playerList.Length);
-        while (playerList[randomIndex] == null)
-        {
-            randomIndex = Random.Range(0, playerList.Length);
-        }
-        return playerList[randomIndex];
-    }
+    
 
     public void NotifyDead(Character character)
     {
@@ -180,6 +154,7 @@ public class BattleManager : Singleton<BattleManager>
         }
         else
         {
+            PlayerCharacter[] players = GameManager.GetInstance().GetPlayers();
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] == character)
@@ -199,7 +174,7 @@ public class BattleManager : Singleton<BattleManager>
         }
     }
 
-    override public void Populate()
+    public void OnEnable()
     {
         
         battleCanvas.SetActive(true);
@@ -223,7 +198,6 @@ public class BattleManager : Singleton<BattleManager>
 
         //jank to remove stack objects that weren't done removing
         Destroy(GameObject.Find("Stack 1"));
-        
 
         return;
     }

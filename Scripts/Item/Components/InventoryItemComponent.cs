@@ -10,6 +10,7 @@ public class InventoryItemComponent : MonoBehaviour
     [SerializeField] private CustomizableSpell item;
     [SerializeField] private GameObject craftPrefab;
     [SerializeField] private Button button;
+    [SerializeField] private GameObject spellPrefab;
     public static bool crafting = false;
     private static GameObject craftingItem;
     private Color baseColor;
@@ -24,52 +25,58 @@ public class InventoryItemComponent : MonoBehaviour
         button.GetComponentInChildren<TextMeshProUGUI>().text = item.GetItemName();
         
     }
-    public void MoveToItemSlot()
+    public void OnClick()
     {
         //Used in crafting to create or remove a card in the item slot
-        if(GameManager.GetInstance().GetGameState() != GameManager.GameState.CRAFT)
+        if(GameManager.GetInstance().GetGameState() == GameManager.GameState.CRAFT)
         {
-            return;
-        }
+            Image image = GetComponent<Image>();
 
-        Image image = GetComponent<Image>();
-
-        if (!crafting)
-        {
-            image.color = new Color(0.5f, 1f, 0.5f); //green color to indicate crafting mode
-            craftingItem = Instantiate(craftPrefab, new Vector2(-40, 10), Quaternion.identity);
-
-            //animation
-            craftingItem.transform.DOMoveY(0, 0.25f).SetEase(Ease.OutBack);
-            craftingItem.transform.DORotate(new Vector3(0, 0, 360), 0.25f, RotateMode.FastBeyond360).SetEase(Ease.OutBack).OnComplete(() =>
+            if (!crafting)
             {
-                if(craftingItem == null) return; //if crafting item was destroyed during the animation, do not set rotation
-                //nodes spawn rotated which is bad, this fixes that by setting thei rotation manually when the animation is done
-                foreach (Transform child in craftingItem.transform)
+                image.color = new Color(0.5f, 1f, 0.5f); //green color to indicate crafting mode
+                craftingItem = Instantiate(craftPrefab, new Vector2(-40, 10), Quaternion.identity);
+
+                //animation
+                craftingItem.transform.DOMoveY(0, 0.25f).SetEase(Ease.OutBack);
+                craftingItem.transform.DORotate(new Vector3(0, 0, 360), 0.25f, RotateMode.FastBeyond360).SetEase(Ease.OutBack).OnComplete(() =>
                 {
-                    child.transform.rotation = Quaternion.identity;
-                }
-            });
+                    if (craftingItem == null) return; //if crafting item was destroyed during the animation, do not set rotation
+                                                      //nodes spawn rotated which is bad, this fixes that by setting thei rotation manually when the animation is done
+                    foreach (Transform child in craftingItem.transform)
+                    {
+                        child.transform.rotation = Quaternion.identity;
+                    }
+                });
 
 
-            craftingItem.GetComponent<ItemComponent>().SetItem(item);
-            craftingItem.GetComponent<CraftCard>().SetSpell(item);
-            craftingItem.GetComponentInChildren<TMP_InputField>().text = item.GetItemName();
-            crafting = true;
-
-            Inventory.GetInstance().RemoveItem(item);
-            Destroy(gameObject); 
-        }
-        else
-        {
-            if(craftingItem != null && craftingItem.GetComponent<CraftCard>().IsValid())
-            {
-                StartCoroutine(DestroyCraftingItem());
+                craftingItem.GetComponent<ItemComponent>().SetItem(item);
+                craftingItem.GetComponent<CraftCard>().SetSpell(item);
+                craftingItem.GetComponentInChildren<TMP_InputField>().text = item.GetItemName();
+                crafting = true;
+                Destruct();
+                
             }
-            
+            else
+            {
+                if (craftingItem != null && craftingItem.GetComponent<CraftCard>().IsValid())
+                {
+                    StartCoroutine(DestroyCraftingItem());
+                }
+
+            }
+        }else if(GameManager.GetInstance().GetGameState() == GameManager.GameState.PREPARE)
+        {
+            GameObject instance = Instantiate(spellPrefab, new Vector2(-20, 16), Quaternion.identity);
+            instance.GetComponent<ItemComponent>().SetItem(item);
+            Destruct();
         }
+    }
 
-
+    private void Destruct()
+    {
+        Inventory.GetInstance().RemoveItem(item);
+        Destroy(gameObject);
     }
 
     public IEnumerator DestroyCraftingItem()

@@ -204,8 +204,4 @@ public class EventManager : Singleton<EventManager>
         }
     }
 
-    override public void Populate()
-    {
-        return;
-    }
 }

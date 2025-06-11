@@ -1,48 +1,21 @@
-using NodeDelegates;
-using System;
+using CommonBehavior;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using UnityEngine.UI;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.Rendering.Universal;
 public class PlayerCharacter : Character
 {
     public static bool hasAttacked = false;
+    private GameObject invPanel;
+    [SerializeField] private GameObject spellButton;
     new private void Start()
     {
         base.Start();
-        BattleManager bm = BattleManager.GetInstance();
-        bm.PhaseChanged.AddListener(
-        (x) =>
+        gameManager.GameStateChanged.AddListener((GameManager.GameState state) =>
         {
-            if (x == BattleManager.Phase.ATTACK)
+            if (state == GameManager.GameState.FIGHT)
             {
-                hasAttacked = false;
+                OnBattleStart();
             }
-        });
-
-        bm.BattleStarted.AddListener(
-        () =>
-        {
-            damage = 1;
-        });
-
-        BattleManager.GetInstance().TurnChanged.AddListener((BattleManager.Turn turn) =>
-        {
-            if (turn == BattleManager.Turn.PLAYER)
-            {
-                if (exhaustRounds != 0 && exhausted)
-                {
-                    exhaustRounds--;
-                }
-                else if (exhaustRounds == 0 && exhausted)
-                {
-
-                    UnExhaust();
-                }
-            }
-
         });
 
         //give all characters a base spell
@@ -70,9 +43,15 @@ public class PlayerCharacter : Character
         },
         new Dictionary<string, object> { { "damage", 1 }, { "modified", false } }),
         (SpellNode self) => "deal " + ((ActionNode)self).action.parameters["damage"] + " damage.", 5));
+
+        spell.SetCastBehavior(() =>
+        {
+            CastBehavior.StandardCast(spell);
+        });
+
         sc.SetSpell(spell);
 
-
+        invPanel = transform.Find("Canvas/PCInventoryPanel").gameObject;
     }
     override public void Attack()
     {
@@ -130,6 +109,37 @@ public class PlayerCharacter : Character
         }
     }
 
+    public void OnBattleStart()
+    {
+        BattleManager bm = BattleManager.GetInstance();
+        bm.PhaseChanged.AddListener(
+        (x) =>
+        {
+            if (x == BattleManager.Phase.ATTACK)
+            {
+                hasAttacked = false;
+            }
+        });
+
+        damage = 1;
+
+        BattleManager.GetInstance().TurnChanged.AddListener((BattleManager.Turn turn) =>
+        {
+            if (turn == BattleManager.Turn.PLAYER)
+            {
+                if (exhaustRounds != 0 && exhausted)
+                {
+                    exhaustRounds--;
+                }
+                else if (exhaustRounds == 0 && exhausted)
+                {
+
+                    UnExhaust();
+                }
+            }
+
+        });
+    }
     override public void Die()
     {
         EventManager.GetInstance().Push(new UntargetedAction(GameAction.ActionType.DIE, (GameAction self) =>
@@ -139,5 +149,40 @@ public class PlayerCharacter : Character
             BattleManager.GetInstance().NotifyDead(this);
         }));
         
+    }
+
+    private void OnMouseDown()
+    {
+        if (invPanel == null || TargetingManager.GetInstance().isTargeting || GameManager.GetInstance().GetGameState() != GameManager.GameState.PREPARE) return;
+        if (!invPanel.activeSelf)
+        {
+            invPanel.SetActive(true);
+            float yPos = 12.5f;
+            foreach(SpellComponent sc in GetComponents<SpellComponent>())
+            {
+                GameObject button = Instantiate(spellButton, new Vector2(0, 0), Quaternion.identity, invPanel.transform);
+                button.transform.localPosition = new Vector2(0, yPos);
+                yPos -= 12.5f;
+                button.transform.Find("Text (TMP)").GetComponent<TMPro.TextMeshProUGUI>().text = sc.GetSpell().GetItemName();
+                button.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    Inventory.GetInstance().AddItem(sc.GetSpell());
+                    Destroy(button);
+                    if (invPanel.transform.childCount == 0)
+                    {
+                        invPanel.SetActive(false);
+                    }
+                    Destroy(sc);
+                });
+            }
+        }
+        else
+        {
+            invPanel.SetActive(false);
+            foreach (Transform child in invPanel.transform)
+            {
+                Destroy(child.gameObject);
+            }
+        }
     }
 }

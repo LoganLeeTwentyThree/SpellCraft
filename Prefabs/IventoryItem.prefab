@@ -124,7 +124,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 3218596294648550893}
         m_TargetAssemblyTypeName: InventoryItemComponent, Assembly-CSharp
-        m_MethodName: MoveToItemSlot
+        m_MethodName: OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -146,9 +146,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1db3ccef3c448574c8fbd9da3ce45db4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemIndexInInventory: 0
   craftPrefab: {fileID: 5465242844062821619, guid: e88c1355ffbb4fc47b87a31dd4755058, type: 3}
   button: {fileID: 1745619798179853241}
+  spellPrefab: {fileID: 2218627508199963333, guid: 9f7334d785686e640a4e0259f44ed567, type: 3}
 --- !u!1 &5293170163104522545
 GameObject:
   m_ObjectHideFlags: 0

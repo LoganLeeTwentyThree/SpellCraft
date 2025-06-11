@@ -147,7 +147,7 @@ public class Inventory : Singleton<Inventory>
 
     public void PopulateInventory()
     {
-        ShopManager.GetInstance().UpdateGoldText();
+        if (ShopManager.GetInstance() != null) ShopManager.GetInstance().UpdateGoldText();
         
         foreach (Transform child in contentParent.transform)
         {
@@ -178,12 +178,6 @@ public class Inventory : Singleton<Inventory>
         }
         
         
-    }
-
-
-    public override void Populate()
-    {
-        return;
     }
 
 }

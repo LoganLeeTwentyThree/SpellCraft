@@ -17,7 +17,7 @@ public class SoundManager : Singleton<SoundManager>
         }
     }
 
-    override public void Populate()
+    public void OnEnable()
     {
         AudioSource[] sources = GetComponents<AudioSource>();
         audioSource = sources[0];
