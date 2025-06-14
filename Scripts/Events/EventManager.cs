@@ -70,7 +70,7 @@ public class EventManager : Singleton<EventManager>
         
         stack.Push(toPush);
         Pushed.Invoke(toPush);
-        UpdateStackUI(toPush);
+        UpdateStackUI(toPush, true);
 
         if (!isResolving && isActiveAndEnabled)
         {
@@ -115,16 +115,15 @@ public class EventManager : Singleton<EventManager>
     {
         action.Resolve(action);
         isResolving = false;
-        UpdateStackUI(action);
+        UpdateStackUI(action, false);
         Popped.Invoke(action);
     }
 
     //Instantiates stack UI elements.
-    private void UpdateStackUI(GameAction action)
+    private void UpdateStackUI(GameAction action, bool push)
     {
         //TODO: fix bug that causes the stack to not update properly when not empty
-        //if the stack contains the action, it was just pushed, otherwise it was just popped
-        if(stack.Contains(action))
+        if(push)
         {
             //push logic
             CreateStackObj(action);
@@ -183,7 +182,7 @@ public class EventManager : Singleton<EventManager>
     public void Update()
     {
         //phase procession logic
-        if(Input.GetKeyDown(KeyCode.Space) && !isResolving && !tm.isTargeting)
+        if(Input.GetKeyDown(KeyCode.Space) && StackIsEmpty() && !tm.isTargeting)
         {
             BattleManager bm = BattleManager.GetInstance();
             if (bm.GetTurn() == Turn.PLAYER)

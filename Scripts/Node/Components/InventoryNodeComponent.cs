@@ -1,5 +1,4 @@
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,21 +15,21 @@ public class InventoryNodeComponent : MonoBehaviour
     {
         this.node = node;
         
-        if ( node.GetType() == typeof(ActionNode))
+        if ( node is ActionNode)
         {
 
             baseColor = new Color(1f, 0.5f, 0.5f);
             nodePrefab = Resources.Load<GameObject>("ActionNode");
-        }else if (node.GetType() == typeof(TriggerNode))
+        }else if (node is TriggerNode)
         {
             baseColor = new Color(0.5f, 1f, 1f);
             nodePrefab = Resources.Load<GameObject>("TriggerNode");
-        }else if (node.GetType() == typeof(ConjunctionNode))
+        }else
         {
             baseColor = new Color(0.75f, 1f, 0.5f);
             nodePrefab = Resources.Load<GameObject>("ConjunctionNode");
         }
-        nameText.text =node.getText(node);
+        nameText.text = node.getText(node);
         
         
     }

@@ -12,16 +12,13 @@ public class CraftCard : MonoBehaviour
     [SerializeField] private int last = 0;
     [SerializeField] private TextMeshProUGUI pointValueText;
     [SerializeField] private TextMeshProUGUI saveText;
-    private int maxPointValue = 10;
+    private int maxPointValue = 20;
     private int currentPointValue = 0;
-
     private void Start()
     {
         CraftManager.GetInstance().currentlyCrafting = gameObject;
         UpdateText();
-
     }
-
     public SpellNode GetPreviousNode(SpellNode node)
     {
         if (last == 0 || node == null) return null;
@@ -29,7 +26,6 @@ public class CraftCard : MonoBehaviour
         if (index <= 0) return null; // no previous node
         return nodeArr[index - 1];
     }
-
     public SpellNode GetLast()
     {
         if(last == 0)
@@ -38,7 +34,6 @@ public class CraftCard : MonoBehaviour
         }
         return nodeArr[last - 1];
     }
-
     public void CreateNodes()
     {
         if (craftingSpell != null)
@@ -86,14 +81,8 @@ public class CraftCard : MonoBehaviour
         }
         nodeSpots[last].SetActive(false);
         last++;
-
-        if (nodeArr[last - 1] is not ActionNode)
-        {
-            nodeSpots[last].SetActive(true);
-        }
-
+        nodeSpots[last].SetActive(true);
     }
-
     private void DecreaseNodeSpots()
     {
         if( last - 1 < 0 )
@@ -127,7 +116,14 @@ public class CraftCard : MonoBehaviour
             }
         }else if(node is ActionNode)
         {
-            if ((nodeArr[last - 1] is TriggerNode) || (nodeArr[last - 1] is ConjunctionNode))
+            if ((nodeArr[last - 1] is TriggerNode or ConjunctionNode or AndNode))
+            {
+                valid = true;
+            }
+        }
+        else if (node is AndNode)
+        {
+            if (nodeArr[last - 1] is not (AndNode or ConjunctionNode))
             {
                 valid = true;
             }

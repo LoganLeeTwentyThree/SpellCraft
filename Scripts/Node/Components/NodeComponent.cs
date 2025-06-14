@@ -18,7 +18,11 @@ public class NodeComponent : MonoBehaviour, IPointerDownHandler
         {
             UpdateText();
         }
-        parentCard = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
+        if(GameManager.GetInstance().GetGameState() == GameManager.GameState.CRAFT)
+        {
+            parentCard = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
+        }
+        
 
 
     }
@@ -44,6 +48,7 @@ public class NodeComponent : MonoBehaviour, IPointerDownHandler
     
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
+        if (GameManager.GetInstance().GetGameState() != GameManager.GameState.CRAFT) return;
         UnAttach();
     }
 
@@ -53,7 +58,7 @@ public class NodeComponent : MonoBehaviour, IPointerDownHandler
         CraftCard cc = CraftManager.GetInstance().currentlyCrafting.GetComponent<CraftCard>();
 
         //apply multipliers to non trigger nodes
-        if ( cc.GetPreviousNode(node) is ConjunctionNode && node is not TriggerNode )
+        if ( cc.GetPreviousNode(node) is ConjunctionNode && cc.GetPreviousNode(node) is not AndNode && node is not TriggerNode )
         {
             if (node is ActionNode an)
             {

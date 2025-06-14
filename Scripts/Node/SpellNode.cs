@@ -62,7 +62,7 @@ public class ConjunctionNode : SpellNode
 {
     public GameAction action;
     public SpellComponent sc;
-    public ConjunctionNode(GameAction action, GetText text, int value) : base(text, value, "ActionNode")
+    public ConjunctionNode(GameAction action, GetText text, int value) : base(text, value, "ConjunctionNode")
     {
         this.action = action;
     }
@@ -85,4 +85,17 @@ public class ConjunctionNode : SpellNode
         
     }
 }
+// This node doesn't do anything on its own, it just serves as a logical conjunction
+public class AndNode : ConjunctionNode
+{
+    public AndNode(GetText getText, int value, string name) : base(null, getText, value)
+    {
+    }
+
+    new public void Execute(string source)
+    {
+        sc.Trigger(this);
+    }
+}
+
 

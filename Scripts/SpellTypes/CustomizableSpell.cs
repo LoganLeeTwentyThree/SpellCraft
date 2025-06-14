@@ -1,10 +1,11 @@
-using Unity.VisualScripting;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CustomizableSpell : Item
 {
     public SpellNode[] array = new SpellNode[6];
     private int last = 0;
+    public List<Keyword> keywords = new();
     public enum SpellType { BURST, ENCHANTMENT }
     [SerializeField] private SpellType spellType;
     public delegate void Cast();
@@ -30,6 +31,15 @@ public class CustomizableSpell : Item
         spellType = type;
     }
 
+    public void AddKeyword(Keyword keyword)
+    {
+        keywords.Add(keyword);
+    }
+
+    public void RemoveKeyword(Keyword keyword)
+    {
+        keywords.Remove(keyword);
+    }
 
     override public string ToString()
     {

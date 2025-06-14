@@ -49,16 +49,36 @@ public class SpellComponent : MonoBehaviour
             return;
         }
 
-        int indexToExecute;
-        if(node is TriggerNode or ConjunctionNode)
+        int indexToExecute = -1;
+        if(node is TriggerNode tn)
         {
-            //if a non action node is passed, it will execute the next node in the spell array
+            // if a trigger node is passed, it will execute the next occuring action or (not-and) conjunction node in the spell array
+            for(int i = 0; i < spell.array.Length; i++)
+            {
+                if (spell.array[i] is ActionNode || (spell.array[i] is ConjunctionNode && spell.array[i] is not AndNode))
+                {
+                    indexToExecute = i;
+                    break;
+                }
+            }
+            if(indexToExecute == -1)
+            {
+                //this shouldnt happen as long as the spell is valid, but just in case
+                Debug.LogError("No action or conjunction node found after trigger node in spell array.");
+                return;
+            }
+        }
+        else if(node is ConjunctionNode)
+        {
+            
+            //if a conjunction node is passed, it will execute the next node in the spell array
             indexToExecute = System.Array.IndexOf(spell.array, node) + 1;
         }
         else 
         {
             //if an action node is passed, it will execute the node itself (done for burst spells)
             indexToExecute = System.Array.IndexOf(spell.array, node);
+            
         }
 
         //turn action into attack if applicable
@@ -69,11 +89,17 @@ public class SpellComponent : MonoBehaviour
                 an.action.SetActionType(GameAction.ActionType.ATTACK);
             }
             an.Execute(gameObject.name);
+            //check for and node
+            if (spell.array[indexToExecute + 1] is AndNode andNode)
+            {
+                andNode.Execute(gameObject.name);
+            }
         }
         else if (spell.array[indexToExecute] is ConjunctionNode cn)
         {
             cn.Execute(gameObject.name);
         }
+
 
         
     }

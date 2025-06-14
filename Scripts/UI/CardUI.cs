@@ -50,7 +50,6 @@ public class CardUI : MonoBehaviour, IDragHandler
     {
         if (transform.position.y > 17)
         {
-            Debug.Log(cardEffect);
             if (cardEffect != null)
             {
                 cardEffect.Use();

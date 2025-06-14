@@ -4,6 +4,8 @@ using UnityEngine.Events;
 using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
+using System.Collections;
+using DG.Tweening;
 
 public class BattleManager : Singleton<BattleManager>
 {
@@ -118,8 +120,19 @@ public class BattleManager : Singleton<BattleManager>
         }
     }
 
-    public void EndFight()
+    public IEnumerator EndFight()
     {
+        NodeFactory nf = new NodeFactory();
+        SpellNode sn = nf.GetRandomNode();
+        GameObject nodeObject = Instantiate(Resources.Load<GameObject>("ActionNode"), new Vector2(0, 1.5f), Quaternion.identity);
+        nodeObject.GetComponent<NodeComponent>().SetNode(sn);
+        nodeObject.transform.DOScale(nodeObject.transform.localScale * 2, 1.5f).SetEase(Ease.OutQuad).OnComplete(()=>
+        {
+            Inventory.GetInstance().AddItem(sn);
+            Destroy(nodeObject);
+        });
+        yield return new WaitForSeconds(2f);
+
         battleCanvas.SetActive(false);
         GameManager.GetInstance().ExitBattle();
     }
@@ -150,7 +163,7 @@ public class BattleManager : Singleton<BattleManager>
     {
         if (character is Enemy)
         {
-            EndFight();
+            StartCoroutine(EndFight());
         }
         else
         {
